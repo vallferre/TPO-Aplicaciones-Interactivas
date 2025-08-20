@@ -1,0 +1,10 @@
+com\uade\tpo\marketplace\service\CategoryService.class
+com\uade\tpo\marketplace\exceptions\CategoryDuplicateException.class
+com\uade\tpo\marketplace\MarketplaceApplication.class
+com\uade\tpo\marketplace\entity\Category.class
+com\uade\tpo\marketplace\controllers\CategoriesController.class
+com\uade\tpo\marketplace\entity\dto\CategoryRequest.class
+com\uade\tpo\marketplace\repository\CategoryRepository.class
+com\uade\tpo\marketplace\service\CategoryServiceImpl.class
+com\uade\tpo\marketplace\entity\Category$CategoryBuilder.class
+com\uade\tpo\marketplace\repository\CategoryRepositoryOLD.class
