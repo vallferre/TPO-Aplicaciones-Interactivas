@@ -17,12 +17,10 @@ public class Product {
     private Long id;
 
     @Column
-    private String name;
-
-    @Column
     private String description;
 
     @OneToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;
+
 }

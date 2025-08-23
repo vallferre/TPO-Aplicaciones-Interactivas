@@ -9,7 +9,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
+import lombok.Data;
 
+@Data
 @Entity
 public class Role {
     @Id
@@ -17,14 +19,11 @@ public class Role {
     private Long id;
 
     @Column
-    private String name;
-
-    @Column
     private String description;
 
     @ManyToMany(mappedBy = "roles")
     private List<User> users;
 
-    @OneToOne
-    private User user;
+    // @OneToOne
+    // private User user;
 }
