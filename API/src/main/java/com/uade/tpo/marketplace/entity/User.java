@@ -11,7 +11,6 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column
     private String email;
     @Column
@@ -19,10 +18,17 @@ public class User {
     @Column
     private String surname;
 
+    @Column
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
+
     @OneToMany(mappedBy = "user")
     private List<Order> orders;
 
-    @ManyToMany
-    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private List<Role> roles;
+    @ManyToOne(fetch = FetchType.EAGER) // solo un rol por usuario
+    @JoinColumn(name = "role_id")
+    private Role role;
+
 }

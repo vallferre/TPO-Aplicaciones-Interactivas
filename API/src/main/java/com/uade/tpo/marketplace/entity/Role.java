@@ -1,14 +1,12 @@
 package com.uade.tpo.marketplace.entity;
 
-import java.util.List;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToOne;
 import lombok.Data;
 
 @Data
@@ -18,12 +16,20 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private String description;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false, unique = true)
+    private RoleName name;
 
-    @ManyToMany(mappedBy = "roles")
-    private List<User> users;
+    public Role() {
+    }
 
-    // @OneToOne
-    // private User user;
+    // Constructor con parámetro
+    public Role(RoleName name) {
+        this.name = name;
+    }
+
+    public enum RoleName {
+        ROLE_USER,   // compra y vende
+        ROLE_ADMIN   // administración
+    }
 }
