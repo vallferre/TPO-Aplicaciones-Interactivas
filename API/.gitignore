@@ -33,3 +33,4 @@ build/
 .vscode/
 
 API/src/main/resources/application.properties
+API\src\main\resources\application.properties
