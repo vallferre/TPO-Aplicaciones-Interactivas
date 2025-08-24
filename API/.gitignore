@@ -34,3 +34,5 @@ build/
 
 API/src/main/resources/application.properties
 API\src\main\resources\application.properties
+API/target/classes/application.properties
+API\target\classes\application.properties
