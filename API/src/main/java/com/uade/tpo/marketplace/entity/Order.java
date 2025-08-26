@@ -1,5 +1,9 @@
 package com.uade.tpo.marketplace.entity;
 
+import java.util.*;
+
+import org.springframework.cglib.core.Local;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,4 +21,9 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false) //es la foreign key de la tabla
     private User user;
+
+    //lista de items de la orden
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> items = new ArrayList<>();
+
 }
