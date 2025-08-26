@@ -63,7 +63,7 @@ public class UserController {
         User result = userService.createUser(
                 userRequest.getEmail(),
                 userRequest.getName(),
-                userRequest.getSurename(),
+                userRequest.getSurname(),
                 userRequest.getUsername(),
                 userRequest.getPassword()
         );

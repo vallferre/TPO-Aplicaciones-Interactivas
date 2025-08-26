@@ -12,7 +12,7 @@ public class UserRequest {
     private Long id;
     private String email;
     private String name;
-    private String surename;
+    private String surname;
     private String username;
     private String password;
     private List<Order> orders;
