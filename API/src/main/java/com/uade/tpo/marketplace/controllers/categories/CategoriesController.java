@@ -24,6 +24,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class CategoriesController {
 
     @Autowired
+    /*is an annotation used for automatic dependency injection. 
+    It allows Spring to automatically resolve and inject the required dependencies (other beans) into a class at runtime, 
+    eliminating the need for manual configuration of these dependencies.
+    */
     private CategoryService categoryService;
 
     @GetMapping
