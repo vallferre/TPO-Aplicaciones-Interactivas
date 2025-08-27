@@ -16,6 +16,7 @@ public class OrderServiceImpl {
     @Autowired
     private OrderRepository orderRepository;
 
+    /*
     public List<Order> getOrders() {
         return orderRepository.findAll();
     }
@@ -27,5 +28,6 @@ public class OrderServiceImpl {
     public Order createOrder(Long count, User user){
         return orderRepository.save(new Order(count, user));
     }
+        */
 
 }
