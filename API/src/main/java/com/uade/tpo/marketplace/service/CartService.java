@@ -1,10 +1,15 @@
 package com.uade.tpo.marketplace.service;
 
-import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.uade.tpo.marketplace.entity.*;
-import com.uade.tpo.marketplace.repository.*;
+import com.uade.tpo.marketplace.entity.Cart;
+import com.uade.tpo.marketplace.entity.CartItem;
+import com.uade.tpo.marketplace.entity.Order;
+import com.uade.tpo.marketplace.entity.OrderItem;
+import com.uade.tpo.marketplace.entity.Product;
+import com.uade.tpo.marketplace.repository.CartRepository;
+import com.uade.tpo.marketplace.repository.OrderRepository;
+import com.uade.tpo.marketplace.repository.ProductRepository;
 
 import jakarta.transaction.Transactional;
 

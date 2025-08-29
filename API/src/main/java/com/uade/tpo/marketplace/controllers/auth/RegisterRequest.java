@@ -1,6 +1,6 @@
 package com.uade.tpo.marketplace.controllers.auth;
 
-import com.uade.tpo.marketplace.entity.Role;
+import com.uade.tpo.marketplace.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,5 +18,5 @@ public class RegisterRequest {
     private String username;
     private String email;
     private String password;
-    private Role role;
+    private User.RoleName role;
 }

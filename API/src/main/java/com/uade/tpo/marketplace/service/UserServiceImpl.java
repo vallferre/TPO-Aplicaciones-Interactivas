@@ -1,23 +1,19 @@
 package com.uade.tpo.marketplace.service;
 
-import com.uade.tpo.marketplace.entity.Role;
-import com.uade.tpo.marketplace.entity.User;
-import com.uade.tpo.marketplace.exceptions.UserDuplicateException;
-import com.uade.tpo.marketplace.repository.UserRepository;
-import com.uade.tpo.marketplace.repository.RoleRepository;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import com.uade.tpo.marketplace.entity.User;
+import com.uade.tpo.marketplace.exceptions.UserDuplicateException;
+import com.uade.tpo.marketplace.repository.UserRepository;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
 
     @Override
     public Optional<User> getUserById(Long userId) {
@@ -40,8 +36,6 @@ public class UserServiceImpl implements UserService {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new UserDuplicateException("El email ya está registrado: " + email);
         }
-        Role roleUser = roleRepository.findByName(Role.RoleName.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException("Default role not found"));
 
         // create user with default value
         User user = new User();
@@ -50,7 +44,7 @@ public class UserServiceImpl implements UserService {
         user.setSurname(surname);
         user.setUsername(username);
         user.setPassword(password);
-        user.setRole(roleUser); // default value
+        user.setRole(User.RoleName.ROLE_USER); // default value
 
         return userRepository.save(user);
     }
