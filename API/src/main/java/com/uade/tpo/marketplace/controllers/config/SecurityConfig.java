@@ -2,6 +2,7 @@ package com.uade.tpo.marketplace.controllers.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,6 +31,8 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(req -> req
                                 .requestMatchers("/auth/**").permitAll()
                                 .requestMatchers("/cart/**").hasRole("USER")
+                                .requestMatchers(HttpMethod.GET, "/categories").permitAll()
+                                .requestMatchers("/categories").hasRole("ADMIN")
                                                 .anyRequest()
                                                 .authenticated())
                                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
