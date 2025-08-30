@@ -33,6 +33,7 @@ public class SecurityConfig {
                                 .requestMatchers("/cart/**").hasRole("USER")
                                 .requestMatchers(HttpMethod.GET, "/categories").permitAll()
                                 .requestMatchers("/categories").hasRole("ADMIN")
+                                .requestMatchers("/products/**").permitAll()
                                                 .anyRequest()
                                                 .authenticated())
                                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
