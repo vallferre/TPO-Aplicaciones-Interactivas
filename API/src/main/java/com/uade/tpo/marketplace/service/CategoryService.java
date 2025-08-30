@@ -5,9 +5,7 @@ import com.uade.tpo.marketplace.exceptions.CategoryDuplicateException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.ArrayList;
 import java.util.Optional;
-import java.util.List;
 
 public interface CategoryService {
     public Page<Category> getCategories(PageRequest pageRequest);
