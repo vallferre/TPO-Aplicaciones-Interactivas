@@ -1,13 +1,13 @@
 package com.uade.tpo.marketplace.repository;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.Category;
-
-import java.util.List;
-import java.util.Optional;
+import com.uade.tpo.marketplace.entity.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
@@ -15,11 +15,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByName(String name);
 
     //Búsquedas básicas
-    @Query("SELECT p FROM Product p WHERE p.category = :category")
+    // Buscar por categoría (ManyToMany)
+    @Query("SELECT p FROM Product p JOIN p.categories c WHERE c = :category")
     List<Product> findByCategory(Category category);
 
-    @Query("SELECT p FROM Product p WHERE p.description = :description")
-    Optional<Product> findByDescription(String description);
+    // O por múltiples descripciones
+    @Query("SELECT p FROM Product p JOIN p.categories c WHERE c.description IN :descriptions")
+    List<Product> findByCategoryDescriptions(List<String> description);
 
     //Búsquedas por precio
     List<Product> findByPriceGreaterThan(double price);
@@ -41,9 +43,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByOrderByStockDesc();
 
     //Combinaciones personalizadas
-    @Query("SELECT p FROM Product p WHERE p.category = :category AND p.price < :price")
+    @Query("SELECT p FROM Product p JOIN p.categories c WHERE c = :category AND p.price < :price")
     List<Product> findByCategoryAndPriceLessThan(Category category, double price);
 
-    @Query("SELECT p FROM Product p WHERE p.category = :category AND p.price > :price")
+    
+    @Query("SELECT p FROM Product p JOIN p.categories c WHERE c = :category AND p.price > :price")
     List<Product> findByCategoryAndPriceGreaterThan(Category category, double price);
 }

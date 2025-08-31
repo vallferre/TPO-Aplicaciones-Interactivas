@@ -64,27 +64,36 @@ public class ProductsController {
     public ResponseEntity<Object> createProduct(
             @RequestBody ProductRequest productRequest,
             @AuthenticationPrincipal User currentUser) throws ProductDuplicateException {
-        
-        Optional<Category> categoryOpt = categoryRepository.findById(productRequest.getCategoryId());
-        if (categoryOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Categoría no encontrada");
+
+        // Obtener la lista de nombres de categorías desde el request
+        List<String> categoryNames = productRequest.getCategories();
+        if (categoryNames == null || categoryNames.isEmpty()) {
+            return ResponseEntity.badRequest().body("Se requiere al menos una categoría");
         }
 
+        // Buscar las categorías por sus nombres
+        List<Category> categories = categoryRepository.findByDescriptionIn(categoryNames);
+        if (categories.isEmpty()) {
+            return ResponseEntity.badRequest().body("Categorías no encontradas");
+        }
+
+        // Crear el producto
         Product newProduct = new Product();
         newProduct.setName(productRequest.getName());
         newProduct.setDescription(productRequest.getDescription());
         newProduct.setStock(productRequest.getStock());
         newProduct.setPrice(productRequest.getPrice());
-        newProduct.setCategory(categoryOpt.get());
-
         newProduct.setImages(productRequest.getImages() != null ? productRequest.getImages() : new ArrayList<>());
         newProduct.setVideos(productRequest.getVideos() != null ? productRequest.getVideos() : new ArrayList<>());
+        newProduct.setCategories(categories); // asignar múltiples categorías
 
+        // Asignar propietario y guardar
         Product result = productService.createProduct(newProduct, currentUser);
-        
+
         return ResponseEntity.created(URI.create("/products/" + result.getId()))
                 .body(result);
     }
+
 
 
     @DeleteMapping("/{productId}")

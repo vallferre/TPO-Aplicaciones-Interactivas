@@ -34,7 +34,10 @@ public class ProductServiceImpl implements ProductService {
         if (existing.isPresent()) {
             throw new ProductDuplicateException();
         }
-        product.setOwner(currentUser); // asigna propietario aquí
+
+        // Asigna propietario
+        product.setOwner(currentUser);
+
         return productRepository.save(product);
     }
 
