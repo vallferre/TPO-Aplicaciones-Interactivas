@@ -7,12 +7,9 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.context.SecurityContextHolder;
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
-
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,7 +30,10 @@ public class SecurityConfig {
                                 .requestMatchers("/cart/**").hasRole("USER")
                                 .requestMatchers(HttpMethod.GET, "/categories").permitAll()
                                 .requestMatchers("/categories").hasRole("ADMIN")
-                                .requestMatchers("/products/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/products/**").hasRole("USER")
+                                .requestMatchers(HttpMethod.PUT, "/products/**").hasRole("USER")
+                                .requestMatchers(HttpMethod.DELETE, "/products/**").hasRole("USER")
                                                 .anyRequest()
                                                 .authenticated())
                                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
