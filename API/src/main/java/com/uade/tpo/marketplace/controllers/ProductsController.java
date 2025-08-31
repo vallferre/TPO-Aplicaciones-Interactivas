@@ -3,6 +3,7 @@ package com.uade.tpo.marketplace.controllers;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,6 +114,29 @@ public class ProductsController {
             @AuthenticationPrincipal User currentUser) throws ProductNotFoundException {
 
         Product updatedProduct = productService.applyDiscount(productId, percentage, currentUser);
+        return ResponseEntity.ok(updatedProduct);
+    }
+
+    @PutMapping("/{productId}/price")
+    public ResponseEntity<Product> updatePrice(
+        @PathVariable Long productId,
+        @RequestBody Map<String, Double> body,
+        @AuthenticationPrincipal User currentUser) throws ProductNotFoundException {
+
+        double newPrice = body.get("price");
+        Product updatedProduct = productService.updatePrice(productId, newPrice, currentUser);
+        return ResponseEntity.ok(updatedProduct);
+    }
+
+
+    @PutMapping("/{productId}/description")
+    public ResponseEntity<Product> updateDescription(
+            @PathVariable Long productId,
+            @RequestBody Map<String, String> body,
+            @AuthenticationPrincipal User currentUser) throws ProductNotFoundException {
+
+        String newDescription = body.get("description");
+        Product updatedProduct = productService.updateDescription(productId, newDescription, currentUser);
         return ResponseEntity.ok(updatedProduct);
     }
 

@@ -76,4 +76,30 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(newPrice);
         return productRepository.save(product);
     }
+
+    @Override
+    public Product updatePrice(Long productId, double newPrice, User currentUser) throws ProductNotFoundException {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(ProductNotFoundException::new);
+
+        if (!product.getOwner().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("No tenés permiso para modificar este producto");
+        }
+
+        product.setPrice(newPrice);
+        return productRepository.save(product);
+    }
+
+    @Override
+    public Product updateDescription(Long productId, String newDescription, User currentUser) throws ProductNotFoundException {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(ProductNotFoundException::new);
+
+        if (!product.getOwner().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("No tenés permiso para modificar este producto");
+        }
+
+        product.setDescription(newDescription);
+        return productRepository.save(product);
+    }
 }

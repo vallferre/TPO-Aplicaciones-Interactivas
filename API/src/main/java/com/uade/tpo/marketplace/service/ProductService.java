@@ -22,4 +22,8 @@ public interface ProductService {
     Product updateStock(Long productId, int newStock, User currentUser) throws ProductNotFoundException;
 
     Product applyDiscount(Long productId, double discountPercentage, User currentUser) throws ProductNotFoundException;
+
+    Product updatePrice(Long productId, double newPrice, User currentUser) throws ProductNotFoundException;
+
+    Product updateDescription(Long productId, String newDescription, User currentUser) throws ProductNotFoundException;
 }
