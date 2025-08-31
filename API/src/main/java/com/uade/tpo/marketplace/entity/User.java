@@ -29,14 +29,14 @@ public class User implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column
+    @Column(nullable = false, unique = true)
     private String email;
     @Column
     private String name;
     @Column
     private String surname;
 
-    @Column
+    @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
