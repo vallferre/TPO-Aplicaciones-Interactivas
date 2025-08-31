@@ -23,32 +23,43 @@ public class AuthenticationService {
         private final AuthenticationManager authenticationManager;
 
         public AuthenticationResponse register(RegisterRequest request) {
-                var user = User.builder()
-                                .name(request.getName())
-                                .surname(request.getSurname())
-                                .email(request.getEmail())
-                                .username(request.getUsername())
-                                .password(passwordEncoder.encode(request.getPassword()))
-                                .role(User.RoleName.USER)
-                                .build();
-
-                repository.save(user);
-                var jwtToken = jwtService.generateToken(user);
-                return AuthenticationResponse.builder()
-                                .accessToken(jwtToken)
-                                .build();
+        // Definir rol según el email
+        User.RoleName role = User.RoleName.USER; // default
+        String emailLower = request.getEmail().trim().toLowerCase();
+        if (emailLower.endsWith("@colecxion.com")) {
+            role = User.RoleName.ADMIN;
         }
 
-        public AuthenticationResponse authenticate(AuthenticationRequest request) {
-                authenticationManager.authenticate(
-                                new UsernamePasswordAuthenticationToken(
-                                                request.getEmail(),
-                                                request.getPassword()));
-                var user = repository.findByEmail(request.getEmail())
-                                .orElseThrow();
-                var jwtToken = jwtService.generateToken(user);
-                return AuthenticationResponse.builder()
-                                .accessToken(jwtToken)
-                                .build();
-        }
+        var user = User.builder()
+                .name(request.getName())
+                .surname(request.getSurname())
+                .email(request.getEmail())
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(role) // asignar rol según email
+                .build();
+
+        repository.save(user);
+
+        var jwtToken = jwtService.generateToken(user);
+        return AuthenticationResponse.builder()
+                .accessToken(jwtToken)
+                .build();
+    }
+
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+
+        var user = repository.findByEmail(request.getEmail())
+                .orElseThrow();
+        var jwtToken = jwtService.generateToken(user);
+        return AuthenticationResponse.builder()
+                .accessToken(jwtToken)
+                .build();
+    }
 }
