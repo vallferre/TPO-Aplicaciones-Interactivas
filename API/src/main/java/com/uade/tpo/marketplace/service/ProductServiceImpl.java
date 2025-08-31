@@ -30,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product createProduct(Product product, User currentUser) throws ProductDuplicateException {
-        Optional<Product> existing = productRepository.findByDescription(product.getDescription());
+        Optional<Product> existing = productRepository.findByName(product.getName());
         if (existing.isPresent()) {
             throw new ProductDuplicateException();
         }

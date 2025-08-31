@@ -11,6 +11,9 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
+    @Query("SELECT p FROM Product p WHERE p.name = :name")
+    Optional<Product> findByName(String name);
+
     //Búsquedas básicas
     @Query("SELECT p FROM Product p WHERE p.category = :category")
     List<Product> findByCategory(Category category);

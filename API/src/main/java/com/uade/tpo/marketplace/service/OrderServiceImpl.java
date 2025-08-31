@@ -3,7 +3,6 @@ package com.uade.tpo.marketplace.service;
 import com.uade.tpo.marketplace.entity.Order;
 import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.repository.OrderRepository;
-import com.uade.tpo.marketplace.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

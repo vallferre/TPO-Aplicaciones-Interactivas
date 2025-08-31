@@ -3,6 +3,8 @@ package com.uade.tpo.marketplace.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -13,7 +15,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import lombok.Data;
 
 @Data
@@ -24,6 +25,9 @@ public class Product {
     private Long id;
 
     @Column
+    private String name;
+
+    @Column
     private String description;
 
     @Column
@@ -32,12 +36,15 @@ public class Product {
     @Column
     private double price;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "orders"}) 
+    //hibernateLazyInitializer y handler → Son campos internos que Hibernate agrega a los proxys. Jackson no los necesita y muchas veces los serializa por error. 
+    //orders → Es tu colección lazy que estaba causando el error de inicialización.
     private User owner;
 
     @ElementCollection

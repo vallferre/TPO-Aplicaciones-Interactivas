@@ -5,6 +5,7 @@ import java.util.List;
 
 @Data
 public class ProductRequest {
+    private String name;
     private String description;
     private int stock;
     private double price;

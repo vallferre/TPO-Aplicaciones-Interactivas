@@ -59,7 +59,7 @@ public class ProductsController {
                      .orElseGet(() -> ResponseEntity.noContent().build());
     }
 
-    @PostMapping("/add")
+    @PostMapping("/create")
     public ResponseEntity<Object> createProduct(
             @RequestBody ProductRequest productRequest,
             @AuthenticationPrincipal User currentUser) throws ProductDuplicateException {
@@ -70,6 +70,7 @@ public class ProductsController {
         }
 
         Product newProduct = new Product();
+        newProduct.setName(productRequest.getName());
         newProduct.setDescription(productRequest.getDescription());
         newProduct.setStock(productRequest.getStock());
         newProduct.setPrice(productRequest.getPrice());
@@ -79,7 +80,7 @@ public class ProductsController {
         newProduct.setVideos(productRequest.getVideos() != null ? productRequest.getVideos() : new ArrayList<>());
 
         Product result = productService.createProduct(newProduct, currentUser);
-
+        
         return ResponseEntity.created(URI.create("/products/" + result.getId()))
                 .body(result);
     }

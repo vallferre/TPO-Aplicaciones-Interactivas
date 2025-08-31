@@ -4,8 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 
 import com.uade.tpo.marketplace.entity.Cart;
 import com.uade.tpo.marketplace.entity.CartItem;
@@ -20,6 +19,7 @@ import com.uade.tpo.marketplace.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 
+@Service
 public class CartService {
     
     @Autowired
