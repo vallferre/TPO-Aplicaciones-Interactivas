@@ -25,7 +25,7 @@ public class CartController {
     }
 
     // Agregar producto al carrito
-    @PostMapping("/{email}/add")
+    @PostMapping("/{userId}/add")
     public ResponseEntity<Cart> addProductToCart(
             @PathVariable Long userId,
             @RequestParam Long productId,
@@ -36,7 +36,7 @@ public class CartController {
     }
 
     // Eliminar producto del carrito
-    @DeleteMapping("/{email}/remove")
+    @DeleteMapping("/{userId}/remove")
     public ResponseEntity<Cart> removeProductFromCart(
             @RequestParam Long cartId,
             @PathVariable Long userId,
@@ -47,7 +47,7 @@ public class CartController {
     }
 
     // Vaciar carrito
-    @DeleteMapping("/{email}/clear")
+    @DeleteMapping("/{userId}/clear")
     public ResponseEntity<Void> clearCart(@PathVariable Long userId) {
         cartService.clearCart(userId);
         return ResponseEntity.noContent().build();
