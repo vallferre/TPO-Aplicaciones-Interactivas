@@ -24,18 +24,28 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
-                                .csrf(AbstractHttpConfigurer::disable)
-                                .authorizeHttpRequests(req -> req
-                                .requestMatchers("/auth/**").permitAll()
-                                .requestMatchers("/cart/**").hasRole("USER")
-                                .requestMatchers(HttpMethod.GET, "/categories").permitAll()
-                                .requestMatchers("/categories").permitAll()
-                                .requestMatchers("/products/**").hasRole("USER")
-                                                .anyRequest()
-                                                .authenticated())
-                                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-                                .authenticationProvider(authenticationProvider)
-                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                        .csrf(AbstractHttpConfigurer::disable)
+                        .authorizeHttpRequests(req -> req
+                        // Auth libre
+                        .requestMatchers("/auth/**").permitAll()
+
+                        // Cart -> solo usuarios autenticados con rol USER
+                        .requestMatchers("/cart/**").hasRole("USER")
+
+                        // Categories -> todos pueden ver y crear
+                        .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/categories/**").hasRole("USER") 
+
+                        // Products -> GET cualquiera, POST cualquiera, pero PUT/DELETE solo dueño (se valida en service)
+                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/products/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/products/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/products/**").hasRole("USER")
+
+                        .anyRequest().authenticated())
+                        .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+                        .authenticationProvider(authenticationProvider)
+                        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
         }
