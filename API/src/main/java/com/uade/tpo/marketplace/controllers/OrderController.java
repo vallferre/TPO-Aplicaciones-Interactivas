@@ -1,44 +1,50 @@
 package com.uade.tpo.marketplace.controllers;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.entity.Order;
 import com.uade.tpo.marketplace.service.OrderService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import com.uade.tpo.marketplace.service.UserService;
 
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("orders")
+@RequestMapping("/orders")
 public class OrderController {
+
     @Autowired
     private OrderService orderService;
+    
+    @Autowired
+    private UserService userService;
 
+    // Obtener todas las órdenes
     @GetMapping
     public List<Order> getOrders() {
-        return (List<Order>) orderService.getOrders();
+        return orderService.getOrders();
     }
 
-    @GetMapping("/{orderId}")//seguir aca
-    public Optional<Order> getOrdersById(Long orderId){
-        return orderService.getOrdersById(orderId);
+    // Obtener una orden por ID
+    @GetMapping("/{orderId}")
+    public ResponseEntity<Order> getOrdersById(@PathVariable Long orderId) {
+        return orderService.getOrdersById(orderId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
-    
-    @PostMapping("path")
-    public String postMethodName(@RequestBody String entity) {
-        //TODO: process POST request
-        
-        return entity;
-    }
-    
-    
-    
 
+    // Crear una orden
+    @PostMapping
+    public ResponseEntity<Order> createOrder(
+            @RequestParam Long count,
+            @RequestParam Long userId) {
+
+        User user = userService.getUserById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Order order = orderService.createOrder(count, user);
+        return ResponseEntity.ok(order);
+    }
 }
