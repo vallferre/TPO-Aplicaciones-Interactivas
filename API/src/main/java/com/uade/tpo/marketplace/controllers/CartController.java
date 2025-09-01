@@ -2,6 +2,7 @@ package com.uade.tpo.marketplace.controllers;
 
 import com.uade.tpo.marketplace.entity.Cart;
 import com.uade.tpo.marketplace.entity.CartItem;
+import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
 import com.uade.tpo.marketplace.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,10 +38,11 @@ public class CartController {
     // Eliminar producto del carrito
     @DeleteMapping("/{email}/remove")
     public ResponseEntity<Cart> removeProductFromCart(
+            @RequestParam Long cartId,
             @PathVariable Long userId,
-            @RequestParam Long productId) {
+            @RequestParam Long productId) throws AccessDeniedException {
 
-        Cart updatedCart = cartService.removeProductFromCart(userId, productId);
+        Cart updatedCart = cartService.removeProductFromCart(cartId, productId, userId);
         return ResponseEntity.ok(updatedCart);
     }
 
