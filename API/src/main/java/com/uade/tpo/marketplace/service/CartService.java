@@ -12,6 +12,7 @@ import com.uade.tpo.marketplace.entity.Order;
 import com.uade.tpo.marketplace.entity.OrderItem;
 import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.User;
+import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
 import com.uade.tpo.marketplace.repository.CartRepository;
 import com.uade.tpo.marketplace.repository.OrderRepository;
 import com.uade.tpo.marketplace.repository.ProductRepository;
@@ -74,9 +75,17 @@ public class CartService {
 
     //elimino producto del carrito
     @Transactional
-    public Cart removeProductFromCart(Long cartId, Long productId){
-        Cart cart = cartRepository.findById(cartId).orElseThrow();
-        Product product = productRepository.findById(productId).orElseThrow();
+    public Cart removeProductFromCart(Long cartId, Long productId, Long userId) throws AccessDeniedException{
+        Cart cart = cartRepository.findById(cartId)
+            .orElseThrow(() -> new RuntimeException("Cart not found"));
+
+        // ✅ Verificación de ownership
+        if (!cart.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException();
+        }
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
         cart.removeProduct(product);
         return cartRepository.save(cart);
@@ -106,8 +115,14 @@ public class CartService {
 
     //convierto carrito en orden y descuento del stock
     @Transactional
-    public Order checkout(Long cartId){
-        Cart cart = cartRepository.findById(cartId).orElseThrow();
+    public Order checkout(Long cartId, Long userId) throws AccessDeniedException{
+        Cart cart = cartRepository.findById(cartId)
+            .orElseThrow(() -> new RuntimeException("Cart not found"));
+
+        // ✅ Verificación de ownership
+        if (!cart.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException();
+    }
 
         Order order = new Order();
         order.setUser(cart.getUser());
