@@ -25,6 +25,7 @@ import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -94,6 +95,7 @@ public class User implements UserDetails{
 
     @ManyToMany
     @Builder.Default
+    @EqualsAndHashCode.Exclude
     @JoinTable(
         name = "user_favorites",
         joinColumns = @JoinColumn(name = "user_id"),
