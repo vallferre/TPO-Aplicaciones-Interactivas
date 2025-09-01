@@ -28,10 +28,10 @@ public class CartController {
     @PostMapping("/{userId}/add")
     public ResponseEntity<Cart> addProductToCart(
             @PathVariable Long userId,
-            @RequestParam Long productId,
+            @RequestParam String productName,
             @RequestParam(defaultValue = "1") int quantity) {
 
-        Cart updatedCart = cartService.addProductToCart(userId, productId, quantity);
+        Cart updatedCart = cartService.addProductToCartByName(userId, productName, quantity);
         return ResponseEntity.ok(updatedCart);
     }
 
@@ -53,3 +53,4 @@ public class CartController {
         return ResponseEntity.noContent().build();
     }
 }
+

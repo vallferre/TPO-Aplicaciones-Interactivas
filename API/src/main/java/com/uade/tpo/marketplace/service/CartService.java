@@ -154,4 +154,11 @@ public class CartService {
         return orderRepository.save(order); //guardar y retornar orden
     }
 
+    public Cart addProductToCartByName(Long userId, String productName, int quantity) {
+        // buscar producto por nombre en ProductRepository
+        Product product = productRepository.findByName(productName)
+            .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        return addProductToCart(userId, product.getId(), quantity);
+    }
+
 }
