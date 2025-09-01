@@ -33,6 +33,10 @@ public class FavoriteServiceImpl implements FavoriteService {
         Product product = productRepository.findByName(productName)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
+        if (currentUser.getFavoriteProducts().contains(product)) {
+            throw new RuntimeException("El producto ya está en favoritos");
+        }
+
         currentUser.getFavoriteProducts().add(product);
         userRepository.save(currentUser);
     }
@@ -43,6 +47,11 @@ public class FavoriteServiceImpl implements FavoriteService {
 
         if (!currentUser.getId().equals(userId)) {
             throw new AccessDeniedException();
+        }
+
+        boolean removed = currentUser.getFavoriteProducts().removeIf(p -> p.getName().equals(productName));
+        if (!removed) {
+            throw new RuntimeException("El producto no estaba en favoritos");
         }
 
         currentUser.getFavoriteProducts().removeIf(p -> p.getName().equals(productName));
