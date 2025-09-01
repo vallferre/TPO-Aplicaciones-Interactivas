@@ -43,6 +43,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/products/**").hasRole("USER")
 
                         .requestMatchers(HttpMethod.GET, "/users/{userId}").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/users/**").denyAll()
+                        .requestMatchers(HttpMethod.POST, "/users/**").denyAll()
+                        .requestMatchers(HttpMethod.DELETE, "/users/**").denyAll()
                         .requestMatchers(HttpMethod.GET, "/users/{userId}/favorites").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/users/{userId}/favorites").hasRole("USER")
                         .requestMatchers(HttpMethod.PUT, "/users/{userId}/favorites").hasRole("USER")
