@@ -49,4 +49,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     
     @Query("SELECT p FROM Product p JOIN p.categories c WHERE c = :category AND p.price > :price")
     List<Product> findByCategoryAndPriceGreaterThan(Category category, double price);
+
+    // Verifica si un producto ya existe para ese owner con mismo nombre y descripción
+    boolean existsByOwnerIdAndNameAndDescription(Long ownerId, String name, String description);
+
 }

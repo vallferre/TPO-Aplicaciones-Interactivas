@@ -30,8 +30,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product createProduct(Product product, User currentUser) throws ProductDuplicateException {
-        Optional<Product> existing = productRepository.findByName(product.getName());
-        if (existing.isPresent()) {
+        // Verifica duplicado considerando owner, name y description
+        boolean exists = productRepository.existsByOwnerIdAndNameAndDescription(
+        currentUser.getId(),
+        product.getName(),
+        product.getDescription()
+        );
+        if (exists) {
             throw new ProductDuplicateException();
         }
 
