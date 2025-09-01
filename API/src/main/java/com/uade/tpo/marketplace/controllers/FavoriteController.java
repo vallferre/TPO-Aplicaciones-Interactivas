@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.dto.FavoriteRequest;
+import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
 import com.uade.tpo.marketplace.service.FavoriteService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,20 +27,20 @@ public class FavoriteController {
 
     @PostMapping
     public ResponseEntity<Void> addFavorite(@PathVariable Long userId,
-                                            @RequestBody FavoriteRequest request) {
+                                            @RequestBody FavoriteRequest request) throws AccessDeniedException {
         favoriteService.addFavoriteProduct(userId, request.getProductName());
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping
     public ResponseEntity<Void> removeFavorite(@PathVariable Long userId,
-                                               @RequestBody FavoriteRequest request) {
+                                               @RequestBody FavoriteRequest request) throws AccessDeniedException {
         favoriteService.removeFavoriteProduct(userId, request.getProductName());
         return ResponseEntity.ok().build();
     }
 
     @GetMapping
-    public ResponseEntity<Set<Product>> getFavorites(@PathVariable Long userId) {
+    public ResponseEntity<Set<Product>> getFavorites(@PathVariable Long userId) throws AccessDeniedException {
         return ResponseEntity.ok(favoriteService.getFavoriteProducts(userId));
     }
 }
