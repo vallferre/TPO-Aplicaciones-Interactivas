@@ -28,6 +28,6 @@ public class Category {
     public Category(){}
 
     public Category(String description) {
-        this.description = description;
+        this.description = description.substring(0, 1).toUpperCase() + description.substring(1).toLowerCase();
     }
 }

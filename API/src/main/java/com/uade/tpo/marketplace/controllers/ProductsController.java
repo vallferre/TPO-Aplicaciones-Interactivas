@@ -74,16 +74,16 @@ public class ProductsController {
         // Buscar las categorías por sus nombres
         List<Category> categories = new ArrayList<>();
         for (String name : categoryNames) {
-         List<Category> existing = categoryRepository.findByDescription(name);
-         if (existing.isEmpty()) {
-            // Si no existe, crear nueva categoría
-            Category newCategory = new Category(name);
-            categoryRepository.save(newCategory);
-            categories.add(newCategory);
-        } else {
-            categories.add(existing.get(0)); // si existe, tomar la categoria que ya existe
+            List<Category> existing = categoryRepository.findByDescription(name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase());
+            if (existing.isEmpty()) {
+                // Si no existe, crear nueva categoría
+                Category newCategory = new Category(name);
+                categoryRepository.save(newCategory);
+                categories.add(newCategory);
+            } else {
+                categories.add(existing.get(0)); // si existe, tomar la categoria que ya existe
+            }
         }
-}
 
 
         // Crear el producto

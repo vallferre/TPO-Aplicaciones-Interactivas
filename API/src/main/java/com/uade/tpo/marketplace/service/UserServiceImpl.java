@@ -1,12 +1,15 @@
 package com.uade.tpo.marketplace.service;
 
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.exceptions.UserDuplicateException;
+import com.uade.tpo.marketplace.repository.ProductRepository;
 import com.uade.tpo.marketplace.repository.UserRepository;
 
 @Service
@@ -14,6 +17,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @Override
     public Optional<User> getUserById(Long userId) {
@@ -81,4 +87,32 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
+     // Agregar a favoritos
+    public User addFavorite(Long userId, String productName) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Product product = productRepository.findByName(productName)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        user.addFavorite(product);
+        return userRepository.save(user);
+    }
+
+    // Quitar de favoritos
+    public User removeFavorite(Long userId, String productName) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Product product = productRepository.findByName(productName)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        user.removeFavorite(product);
+        return userRepository.save(user);
+    }
+
+    // Obtener favoritos de un usuario
+    public Set<Product> getFavorites(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getFavoriteProducts();
+    }
 }

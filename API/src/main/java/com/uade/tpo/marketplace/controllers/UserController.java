@@ -12,10 +12,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.tpo.marketplace.entity.User;
+import com.uade.tpo.marketplace.entity.dto.FavoriteRequest;
 import com.uade.tpo.marketplace.entity.dto.UserRequest;
+import com.uade.tpo.marketplace.exceptions.ProductNotFoundException;
 import com.uade.tpo.marketplace.exceptions.UserDuplicateException;
 import com.uade.tpo.marketplace.service.UserService;
 
@@ -69,6 +72,27 @@ public class UserController {
         );
         return ResponseEntity.created(URI.create("/users/" + result.getId()))
                 .body(Map.of("message", "User successfully created", "user", result));
+    }
+
+    @PostMapping("/{userId}/favorites")
+    public ResponseEntity<Object> addFavorite(
+        @PathVariable Long userId, 
+        @RequestBody FavoriteRequest request) throws ProductNotFoundException {
+        User updatedUser = userService.addFavorite(userId, request.getProductName());
+        return ResponseEntity.ok(Map.of("message", "Product added to favorites", "favorites", updatedUser.getFavoriteProducts()));
+    }
+
+    @DeleteMapping("/{userId}/favorites")
+    public ResponseEntity<Object> removeFavorite(
+        @PathVariable Long userId, 
+        @RequestParam String productName) throws ProductNotFoundException {
+        User updatedUser = userService.removeFavorite(userId, productName);
+        return ResponseEntity.ok(Map.of("message", "Product removed from favorites", "favorites", updatedUser.getFavoriteProducts()));
+    }
+
+    @GetMapping("/{userId}/favorites")
+    public ResponseEntity<Object> getFavorites(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.getFavorites(userId));
     }
 
 }
