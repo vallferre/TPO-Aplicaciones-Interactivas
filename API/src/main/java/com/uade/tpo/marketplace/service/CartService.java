@@ -37,12 +37,12 @@ public class CartService {
 
     //agrego al carrito
     @Transactional
-    public Cart addProductToCart(Long userId, Long productId, int quantity) {
+    public Cart addProductToCart(Long userId, String productName, int quantity) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + userId));
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + productId));
+        Product product = productRepository.findByName(productName)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + productName));
 
         // Validación: un usuario no puede comprar su propio producto
         if (product.getOwner().getId().equals(userId)) {
@@ -58,7 +58,7 @@ public class CartService {
 
         // Agregar producto al carrito
         Optional<CartItem> existingItem = cart.getItems().stream()
-                .filter(item -> item.getProduct().getId().equals(productId))
+                .filter(item -> item.getProduct().getName().equals(productName))
                 .findFirst();
 
         if (existingItem.isPresent()) {
@@ -75,7 +75,7 @@ public class CartService {
 
     //elimino producto del carrito
     @Transactional
-    public Cart removeProductFromCart(Long cartId, Long productId, Long userId) throws AccessDeniedException{
+    public Cart removeProductFromCart(Long cartId, String productName, Long userId) throws AccessDeniedException{
         Cart cart = cartRepository.findById(cartId)
             .orElseThrow(() -> new RuntimeException("Cart not found"));
 
@@ -84,7 +84,7 @@ public class CartService {
             throw new AccessDeniedException();
         }
 
-        Product product = productRepository.findById(productId)
+        Product product = productRepository.findByName(productName)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         cart.removeProduct(product);
@@ -153,12 +153,4 @@ public class CartService {
 
         return orderRepository.save(order); //guardar y retornar orden
     }
-
-    public Cart addProductToCartByName(Long userId, String productName, int quantity) {
-        // buscar producto por nombre en ProductRepository
-        Product product = productRepository.findByName(productName)
-            .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-        return addProductToCart(userId, product.getId(), quantity);
-    }
-
 }

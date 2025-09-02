@@ -18,7 +18,7 @@ public class CartController {
     private final CartService cartService;
 
     // Obtener el carrito de un usuario
-    @GetMapping("/{email}")
+    @GetMapping("/{userId}")
     public ResponseEntity<List<CartItem>> getCartByUser(@PathVariable Long userId) {
         List<CartItem> cartItems = cartService.getCartItems(userId);
         return ResponseEntity.ok(cartItems);
@@ -31,7 +31,7 @@ public class CartController {
             @RequestParam String productName,
             @RequestParam(defaultValue = "1") int quantity) {
 
-        Cart updatedCart = cartService.addProductToCartByName(userId, productName, quantity);
+        Cart updatedCart = cartService.addProductToCart(userId, productName, quantity);
         return ResponseEntity.ok(updatedCart);
     }
 
@@ -40,9 +40,9 @@ public class CartController {
     public ResponseEntity<Cart> removeProductFromCart(
             @RequestParam Long cartId,
             @PathVariable Long userId,
-            @RequestParam Long productId) throws AccessDeniedException {
+            @RequestParam String productName) throws AccessDeniedException {
 
-        Cart updatedCart = cartService.removeProductFromCart(cartId, productId, userId);
+        Cart updatedCart = cartService.removeProductFromCart(cartId, productName, userId);
         return ResponseEntity.ok(updatedCart);
     }
 

@@ -30,7 +30,10 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
 
                         // Cart -> solo usuarios autenticados con rol USER
-                        .requestMatchers("/cart/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/cart/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/cart/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/cart/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/cart/**").hasRole("USER")
 
                         // Categories -> todos pueden ver y crear
                         .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
@@ -43,9 +46,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/products/**").hasRole("USER")
 
                         .requestMatchers(HttpMethod.GET, "/users/{userId}").hasRole("USER")
-                        .requestMatchers(HttpMethod.PUT, "/users/**").denyAll()
-                        .requestMatchers(HttpMethod.POST, "/users/**").denyAll()
-                        .requestMatchers(HttpMethod.DELETE, "/users/**").denyAll()
                         .requestMatchers(HttpMethod.GET, "/users/{userId}/favorites").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/users/{userId}/favorites").hasRole("USER")
                         .requestMatchers(HttpMethod.PUT, "/users/{userId}/favorites").hasRole("USER")
