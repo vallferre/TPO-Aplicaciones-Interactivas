@@ -40,41 +40,9 @@ public class Cart {
     private double total;
 
     // Total del carrito (opcional si lo querés precalculado)
-    public double getTotal() {
+    public double calculateTotal() {
         return items.stream()
                 .mapToDouble(item -> item.getQuantity() * item.getPriceAtAddTime())
                 .sum();
-    }
-
-    // Agregar un producto al carrito
-    public void addProduct(Product product, int quantity) {
-        // Si ya está en el carrito, actualizar la cantidad
-        for (CartItem item : items) {
-            if (item.getProduct().getId().equals(product.getId())) {
-                item.setQuantity(item.getQuantity() + quantity);
-                total = getTotal();
-                return;
-            }
-        }
-        // Si no está, crear uno nuevo
-        CartItem newItem = new CartItem();
-        newItem.setCart(this);
-        newItem.setProduct(product);
-        newItem.setQuantity(quantity);
-        newItem.setPriceAtAddTime(product.getPrice()); // congelamos el precio
-        total = getTotal();
-        items.add(newItem);
-    }
-
-    // Quitar un producto completamente
-    public void removeProduct(Product product) {
-        items.removeIf(item -> item.getProduct().getId().equals(product.getId()));
-        total = total - product.getPrice();
-    }
-
-    // Vaciar carrito
-    public void clear() {
-        items.clear();
-        total = 0;
     }
 }
