@@ -59,24 +59,45 @@ public class ProductServiceImpl implements ProductService {
     }
 
     // ===================== NUEVO MÉTODO =====================
-    @Override
-    public Product updateProduct(Long productId, Product updatedProduct, User currentUser) throws ProductNotFoundException {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(ProductNotFoundException::new);
+    public Product updateProduct(Long productId, Product productRequest, User currentUser) throws ProductNotFoundException {
+    Product product = productRepository.findById(productId)
+            .orElseThrow(ProductNotFoundException::new);
 
-        if (!product.getOwner().getId().equals(currentUser.getId())) {
-            throw new RuntimeException("No tenés permiso para modificar este producto");
-        }
-
-        // Actualizar solo los campos que vengan en el body
-        if (updatedProduct.getName() != null) product.setName(updatedProduct.getName());
-        if (updatedProduct.getDescription() != null) product.setDescription(updatedProduct.getDescription());
-        if (updatedProduct.getStock() >= 0) product.setStock(updatedProduct.getStock());
-        if (updatedProduct.getPrice() >= 0) product.setPrice(updatedProduct.getPrice());
-        if (updatedProduct.getCategories() != null) product.setCategories(updatedProduct.getCategories());
-        if (updatedProduct.getImages() != null) product.setImages(updatedProduct.getImages());
-        if (updatedProduct.getVideos() != null) product.setVideos(updatedProduct.getVideos());
-
-        return productRepository.save(product);
+    if (!product.getOwner().getId().equals(currentUser.getId())) {
+        throw new RuntimeException("No tenés permiso para modificar este producto");
     }
+
+    // Actualizar campos si vienen en el body
+    if (productRequest.getName() != null) {
+        product.setName(productRequest.getName());
+    }
+    if (productRequest.getDescription() != null) {
+        product.setDescription(productRequest.getDescription());
+    }
+    if (productRequest.getStock() != 0) {
+        product.setStock(productRequest.getStock());
+    }
+    if (productRequest.getPrice() != 0) {
+        product.setPrice(productRequest.getPrice());
+    }
+
+    //aplicar descuento si viene en el body
+    if (productRequest.getDiscountPercentage() != null && productRequest.getDiscountPercentage() > 0) {
+        double discount = productRequest.getDiscountPercentage();
+        double newPrice = product.getPrice() - (product.getPrice() * discount / 100);
+        product.setPrice(newPrice);
+    }
+
+    if (productRequest.getImages() != null) {
+        product.setImages(productRequest.getImages());
+    }
+    if (productRequest.getVideos() != null) {
+        product.setVideos(productRequest.getVideos());
+    }
+    if (productRequest.getCategories() != null && !productRequest.getCategories().isEmpty()) {
+        product.setCategories(productRequest.getCategories());
+    }
+
+    return productRepository.save(product);
+}
 }

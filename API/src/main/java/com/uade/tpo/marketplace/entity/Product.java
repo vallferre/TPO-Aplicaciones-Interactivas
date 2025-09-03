@@ -17,6 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
 import lombok.Data;
 
 @Data
@@ -37,6 +38,10 @@ public class Product {
 
     @Column
     private double price;
+    
+    @Transient
+    private Double discountPercentage;
+    
 
     @ManyToMany //cambié esto
     @JoinTable(
