@@ -3,8 +3,8 @@ package com.uade.tpo.marketplace.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.marketplace.entity.Product;
@@ -32,9 +32,9 @@ public class ProductServiceImpl implements ProductService {
     public Product createProduct(Product product, User currentUser) throws ProductDuplicateException {
         // Verifica duplicado considerando owner, name y description
         boolean exists = productRepository.existsByOwnerIdAndNameAndDescription(
-        currentUser.getId(),
-        product.getName(),
-        product.getDescription()
+                currentUser.getId(),
+                product.getName(),
+                product.getDescription()
         );
         if (exists) {
             throw new ProductDuplicateException();
@@ -58,8 +58,9 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(productId);
     }
 
+    // ===================== NUEVO MÉTODO =====================
     @Override
-    public Product updateStock(Long productId, int newStock, User currentUser) throws ProductNotFoundException {
+    public Product updateProduct(Long productId, Product updatedProduct, User currentUser) throws ProductNotFoundException {
         Product product = productRepository.findById(productId)
                 .orElseThrow(ProductNotFoundException::new);
 
@@ -67,47 +68,15 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException("No tenés permiso para modificar este producto");
         }
 
-        product.setStock(newStock);
-        return productRepository.save(product);
-    }
+        // Actualizar solo los campos que vengan en el body
+        if (updatedProduct.getName() != null) product.setName(updatedProduct.getName());
+        if (updatedProduct.getDescription() != null) product.setDescription(updatedProduct.getDescription());
+        if (updatedProduct.getStock() >= 0) product.setStock(updatedProduct.getStock());
+        if (updatedProduct.getPrice() >= 0) product.setPrice(updatedProduct.getPrice());
+        if (updatedProduct.getCategories() != null) product.setCategories(updatedProduct.getCategories());
+        if (updatedProduct.getImages() != null) product.setImages(updatedProduct.getImages());
+        if (updatedProduct.getVideos() != null) product.setVideos(updatedProduct.getVideos());
 
-    @Override
-    public Product applyDiscount(Long productId, double discountPercentage, User currentUser) throws ProductNotFoundException {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(ProductNotFoundException::new);
-
-        if (!product.getOwner().getId().equals(currentUser.getId())) {
-            throw new RuntimeException("No tenés permiso para modificar este producto");
-        }
-
-        double newPrice = product.getPrice() - (product.getPrice() * discountPercentage / 100);
-        product.setPrice(newPrice);
-        return productRepository.save(product);
-    }
-
-    @Override
-    public Product updatePrice(Long productId, double newPrice, User currentUser) throws ProductNotFoundException {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(ProductNotFoundException::new);
-
-        if (!product.getOwner().getId().equals(currentUser.getId())) {
-            throw new RuntimeException("No tenés permiso para modificar este producto");
-        }
-
-        product.setPrice(newPrice);
-        return productRepository.save(product);
-    }
-
-    @Override
-    public Product updateDescription(Long productId, String newDescription, User currentUser) throws ProductNotFoundException {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(ProductNotFoundException::new);
-
-        if (!product.getOwner().getId().equals(currentUser.getId())) {
-            throw new RuntimeException("No tenés permiso para modificar este producto");
-        }
-
-        product.setDescription(newDescription);
         return productRepository.save(product);
     }
 }
