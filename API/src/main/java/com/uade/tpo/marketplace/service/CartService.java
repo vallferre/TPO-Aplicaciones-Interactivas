@@ -1,5 +1,6 @@
 package com.uade.tpo.marketplace.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +14,7 @@ import com.uade.tpo.marketplace.entity.OrderItem;
 import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
+import com.uade.tpo.marketplace.exceptions.InsufficientStockException;
 import com.uade.tpo.marketplace.repository.CartRepository;
 import com.uade.tpo.marketplace.repository.OrderRepository;
 import com.uade.tpo.marketplace.repository.ProductRepository;
@@ -115,42 +117,57 @@ public class CartService {
 
     //convierto carrito en orden y descuento del stock
     @Transactional
-    public Order checkout(Long cartId, Long userId) throws AccessDeniedException{
+    public Order checkout(Long cartId, Long userId) throws AccessDeniedException, InsufficientStockException {
+        // Obtener carrito
         Cart cart = cartRepository.findById(cartId)
-            .orElseThrow(() -> new RuntimeException("Cart not found"));
+                .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
 
-        // ✅ Verificación de ownership
+        // Verificar ownership
         if (!cart.getUser().getId().equals(userId)) {
             throw new AccessDeniedException();
-    }
+        }
 
+        if (cart.getItems().isEmpty()) {
+            throw new RuntimeException("El carrito está vacío");
+        }
+
+        // Primero validar stock de todos los productos antes de modificar nada
+        for (CartItem item : cart.getItems()) {
+            if (item.getProduct().getStock() < item.getQuantity()) {
+                throw new InsufficientStockException(
+                    "No hay stock suficiente para el producto: " + item.getProduct().getDescription()
+                );
+            }
+        }
+
+        // Crear orden
         Order order = new Order();
         order.setUser(cart.getUser());
+        order.setStatus(Order.OrderStatus.PENDING);
+        order.setItems(new ArrayList<>());
+        order.setCount((long) cart.getItems().size());
 
-        for(CartItem cartItem : cart.getItems()){
+        // Crear OrderItems y actualizar stock
+        for (CartItem cartItem : cart.getItems()) {
             Product product = cartItem.getProduct();
+            product.setStock(product.getStock() - cartItem.getQuantity());
+            productRepository.save(product);
 
-            //verifico stock
-            if(product.getStock() < cartItem.getQuantity()){
-                throw new RuntimeException("No hay stock suficiente para el producto: " + product.getDescription());
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
+            orderItem.setProduct(product);
+            orderItem.setQuantity(cartItem.getQuantity());
+            orderItem.setPriceAtPurchase(cartItem.getPriceAtAddTime());
+
+            order.getItems().add(orderItem);
         }
 
-        //descontar stock
-        product.setStock(product.getStock() - cartItem.getQuantity());
-        productRepository.save(product);
+        // Vaciar carrito correctamente
+        cart.getItems().clear();
+        cartRepository.save(cart);
 
-        //crear orderItem
-        OrderItem orderItem = new OrderItem();
-        orderItem.setOrder(order);
-        orderItem.setProduct(product);
-        orderItem.setQuantity(cartItem.getQuantity());
-        orderItem.setPriceAtPurchase(cartItem.getPriceAtAddTime());
-
-        order.getItems().add(orderItem);
-        }
-        cart.getItems().clear(); //vaciar carrito
-        cartRepository.save(cart); //guardar carrito vacio
-
-        return orderRepository.save(order); //guardar y retornar orden
+        // Guardar y retornar la orden
+        return orderRepository.save(order);
     }
+
 }
