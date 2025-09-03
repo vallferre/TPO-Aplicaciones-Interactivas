@@ -56,8 +56,10 @@ public class User implements UserDetails{
     @OneToMany(mappedBy = "user")
     private List<Order> orders;
 
+    /* 
     @OneToMany(mappedBy = "buyer")
     private List<Invoice> purchases;
+     */
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
