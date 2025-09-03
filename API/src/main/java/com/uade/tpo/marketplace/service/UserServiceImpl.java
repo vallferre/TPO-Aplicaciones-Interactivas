@@ -44,7 +44,11 @@ public class UserServiceImpl implements UserService {
         user.setSurname(surname);
         user.setUsername(username);
         user.setPassword(password);
-        user.setRole(User.RoleName.USER); // default value
+        if (email.toLowerCase().trim().endsWith("@colecxion.com")) {
+            user.setRole(User.RoleName.ADMIN); // if colecxion.com, admin
+        } else {
+            user.setRole(User.RoleName.USER);  // default value
+        }
 
         return userRepository.save(user);
     }
@@ -76,5 +80,4 @@ public class UserServiceImpl implements UserService {
         }
         return false;
     }
-
 }

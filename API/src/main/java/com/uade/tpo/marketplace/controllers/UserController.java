@@ -70,5 +70,4 @@ public class UserController {
         return ResponseEntity.created(URI.create("/users/" + result.getId()))
                 .body(Map.of("message", "User successfully created", "user", result));
     }
-
 }

@@ -1,11 +1,16 @@
 package com.uade.tpo.marketplace.entity;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,36 +19,47 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "favoriteProducts"})
 @Data
 public class User implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column
+    @Column(nullable = false, unique = true)
     private String email;
     @Column
     private String name;
     @Column
     private String surname;
 
-    @Column
+    @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
 
     @OneToMany(mappedBy = "user")
     private List<Order> orders;
+
+    /* 
+    @OneToMany(mappedBy = "buyer")
+    private List<Invoice> purchases;
+     */
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -51,7 +67,7 @@ public class User implements UserDetails{
 
     @Override
     public String getUsername() {
-        return username;
+        return email;
     }
 
     @Override
@@ -82,6 +98,28 @@ public class User implements UserDetails{
     public enum RoleName {
         USER,
         ADMIN
+    }
+
+    @ManyToMany
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @JoinTable(
+        name = "user_favorites",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
+    private Set<Product> favoriteProducts = new HashSet<>();
+
+    public Set<Product> getFavoriteProducts() {
+        return favoriteProducts;
+    }
+
+    public void addFavorite(Product product) {
+        favoriteProducts.add(product);
+    }
+
+    public void removeFavorite(Product product) {
+        favoriteProducts.remove(product);
     }
 
 }

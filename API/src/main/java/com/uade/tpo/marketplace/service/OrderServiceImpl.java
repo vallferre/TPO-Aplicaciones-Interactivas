@@ -1,40 +1,30 @@
 package com.uade.tpo.marketplace.service;
 
-import com.uade.tpo.marketplace.entity.Order;
-import com.uade.tpo.marketplace.entity.User;
-import com.uade.tpo.marketplace.repository.OrderRepository;
-import com.uade.tpo.marketplace.service.OrderService;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.uade.tpo.marketplace.entity.Order;
+import com.uade.tpo.marketplace.repository.OrderRepository;
+
 
 @Service
 public class OrderServiceImpl implements OrderService {
 
-    private final OrderRepository orderRepository;
-
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
-    }
+    private OrderRepository orderRepository;
 
     @Override
-    public List<Order> getOrders() {
-        return orderRepository.findAll();
-    }
-
-    @Override
-    public Optional<Order> getOrdersById(Long orderId) {
+    public Optional<Order> getOrderById(Long orderId) {
         return orderRepository.findById(orderId);
     }
 
     @Override
-    public Order createOrder(Long count, User user) {
-        Order order = new Order();
-        order.setCount(count);
-        order.setUser(user);
-        return orderRepository.save(order);
+    public Page<Order> getOrders(PageRequest pageable) {
+        return orderRepository.findAll(pageable);
     }
+    
 }

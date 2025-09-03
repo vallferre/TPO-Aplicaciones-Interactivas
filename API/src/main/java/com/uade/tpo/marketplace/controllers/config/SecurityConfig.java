@@ -7,12 +7,9 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.context.SecurityContextHolder;
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
-
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,18 +24,37 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
-                                .csrf(AbstractHttpConfigurer::disable)
-                                .authorizeHttpRequests(req -> req
-                                .requestMatchers("/auth/**").permitAll()
-                                .requestMatchers("/cart/**").hasRole("USER")
-                                .requestMatchers(HttpMethod.GET, "/categories").permitAll()
-                                .requestMatchers("/categories").hasRole("ADMIN")
-                                .requestMatchers("/products/**").permitAll()
-                                                .anyRequest()
-                                                .authenticated())
-                                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-                                .authenticationProvider(authenticationProvider)
-                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                        .csrf(AbstractHttpConfigurer::disable)
+                        .authorizeHttpRequests(req -> req
+                        // Auth libre
+                        .requestMatchers("/auth/**").permitAll()
+
+                        // Cart -> solo usuarios autenticados con rol USER
+                        .requestMatchers(HttpMethod.GET, "/cart/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/cart/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/cart/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/cart/**").hasRole("USER")
+
+                        // Categories -> todos pueden ver y crear
+                        .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/categories/**").hasRole("USER") 
+
+                        // Products -> GET cualquiera, POST cualquiera, pero PUT/DELETE solo dueño (se valida en service)
+                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/products/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/products/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/products/**").hasRole("USER")
+
+                        .requestMatchers(HttpMethod.GET, "/users/{userId}").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/users/{userId}/favorites").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/users/{userId}/favorites").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/users/{userId}/favorites").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/users/{userId}/favorites").hasRole("USER")
+
+                        .anyRequest().authenticated())
+                        .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+                        .authenticationProvider(authenticationProvider)
+                        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
         }

@@ -1,8 +1,10 @@
 package com.uade.tpo.marketplace.entity.dto;
 
 import java.util.List;
+import java.util.Set;
 
 import com.uade.tpo.marketplace.entity.Order;
+import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.User;
 
 import lombok.Data;
@@ -17,4 +19,5 @@ public class UserRequest {
     private String password;
     private List<Order> orders;
     private User.RoleName role;
+    private Set<Product> favoriteProducts;
 }

@@ -1,24 +1,35 @@
 package com.uade.tpo.marketplace.controllers;
 
-import com.uade.tpo.marketplace.entity.Product;
-import com.uade.tpo.marketplace.entity.Category;
-import com.uade.tpo.marketplace.entity.dto.ProductRequest;
-import com.uade.tpo.marketplace.exceptions.ProductDuplicateException;
-import com.uade.tpo.marketplace.exceptions.ProductNotFoundException;
-import com.uade.tpo.marketplace.service.ProductService;
-import com.uade.tpo.marketplace.repository.CategoryRepository;
-import com.uade.tpo.marketplace.repository.ProductRepository;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import com.uade.tpo.marketplace.entity.Category;
+import com.uade.tpo.marketplace.entity.Product;
+import com.uade.tpo.marketplace.entity.User;
+import com.uade.tpo.marketplace.entity.dto.ProductRequest;
+import com.uade.tpo.marketplace.exceptions.ProductDuplicateException;
+import com.uade.tpo.marketplace.exceptions.ProductNotFoundException;
+import com.uade.tpo.marketplace.repository.CategoryRepository;
+import com.uade.tpo.marketplace.repository.ProductRepository;
+import com.uade.tpo.marketplace.service.ProductService;
 
 @RestController
 @RequestMapping("products")
@@ -49,48 +60,102 @@ public class ProductsController {
                      .orElseGet(() -> ResponseEntity.noContent().build());
     }
 
-    @PostMapping
-    public ResponseEntity<Object> createProduct(@RequestBody ProductRequest productRequest)
-            throws ProductDuplicateException {
+    @PostMapping("/create")
+    public ResponseEntity<Object> createProduct(
+            @RequestBody ProductRequest productRequest,
+            @AuthenticationPrincipal User currentUser) throws ProductDuplicateException {
 
-        Optional<Category> categoryOpt = categoryRepository.findById(productRequest.getCategoryId());
-        if (categoryOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Categoría no encontrada");
+        // Obtener la lista de nombres de categorías desde el request
+        List<String> categoryNames = productRequest.getCategories();
+        if (categoryNames == null || categoryNames.isEmpty()) {
+            return ResponseEntity.badRequest().body("Se requiere al menos una categoría");
         }
 
+        // Buscar las categorías por sus nombres
+        List<Category> categories = new ArrayList<>();
+        for (String name : categoryNames) {
+            List<Category> existing = categoryRepository.findByDescription(name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase());
+            if (existing.isEmpty()) {
+                // Si no existe, crear nueva categoría
+                Category newCategory = new Category(name);
+                categoryRepository.save(newCategory);
+                categories.add(newCategory);
+            } else {
+                categories.add(existing.get(0)); // si existe, tomar la categoria que ya existe
+            }
+        }
+
+
+        // Crear el producto
         Product newProduct = new Product();
+        newProduct.setName(productRequest.getName());
         newProduct.setDescription(productRequest.getDescription());
         newProduct.setStock(productRequest.getStock());
         newProduct.setPrice(productRequest.getPrice());
-        newProduct.setCategory(categoryOpt.get());
-
         newProduct.setImages(productRequest.getImages() != null ? productRequest.getImages() : new ArrayList<>());
         newProduct.setVideos(productRequest.getVideos() != null ? productRequest.getVideos() : new ArrayList<>());
+        newProduct.setCategories(categories); // asignar múltiples categorías
 
-        Product result = productService.createProduct(newProduct);
+        // Asignar propietario y guardar
+        Product result = productService.createProduct(newProduct, currentUser);
 
         return ResponseEntity.created(URI.create("/products/" + result.getId()))
                 .body(result);
     }
 
+
+
     @DeleteMapping("/{productId}")
-    public ResponseEntity<Object> deleteProduct(@PathVariable Long productId) throws ProductNotFoundException {
-        productService.deleteProduct(productId);
+    public ResponseEntity<Object> deleteProduct(
+            @PathVariable Long productId,
+            @AuthenticationPrincipal User currentUser) throws ProductNotFoundException {
+
+        productService.deleteProduct(productId, currentUser);
         return ResponseEntity.noContent().build();
     }
+
 
     @PutMapping("/{productId}/stock")
     public ResponseEntity<Product> updateStock(
             @PathVariable Long productId,
-            @RequestParam int stock) throws ProductNotFoundException {
-        return ResponseEntity.ok(productService.updateStock(productId, stock));
+            @RequestParam int stock,
+            @AuthenticationPrincipal User currentUser) throws ProductNotFoundException {
+
+        Product updatedProduct = productService.updateStock(productId, stock, currentUser);
+        return ResponseEntity.ok(updatedProduct);
     }
 
     @PutMapping("/{productId}/discount")
     public ResponseEntity<Product> applyDiscount(
             @PathVariable Long productId,
-            @RequestParam double percentage) throws ProductNotFoundException {
-        return ResponseEntity.ok(productService.applyDiscount(productId, percentage));
+            @RequestParam double percentage,
+            @AuthenticationPrincipal User currentUser) throws ProductNotFoundException {
+
+        Product updatedProduct = productService.applyDiscount(productId, percentage, currentUser);
+        return ResponseEntity.ok(updatedProduct);
+    }
+
+    @PutMapping("/{productId}/price")
+    public ResponseEntity<Product> updatePrice(
+        @PathVariable Long productId,
+        @RequestBody Map<String, Double> body,
+        @AuthenticationPrincipal User currentUser) throws ProductNotFoundException {
+
+        double newPrice = body.get("price");
+        Product updatedProduct = productService.updatePrice(productId, newPrice, currentUser);
+        return ResponseEntity.ok(updatedProduct);
+    }
+
+
+    @PutMapping("/{productId}/description")
+    public ResponseEntity<Product> updateDescription(
+            @PathVariable Long productId,
+            @RequestBody Map<String, String> body,
+            @AuthenticationPrincipal User currentUser) throws ProductNotFoundException {
+
+        String newDescription = body.get("description");
+        Product updatedProduct = productService.updateDescription(productId, newDescription, currentUser);
+        return ResponseEntity.ok(updatedProduct);
     }
 
     // Endpoints extra

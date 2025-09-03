@@ -1,46 +1,40 @@
 package com.uade.tpo.marketplace.controllers;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.tpo.marketplace.entity.Order;
 import com.uade.tpo.marketplace.service.OrderService;
-import com.uade.tpo.marketplace.service.OrderServiceImpl;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
-
 
 @RestController
-@RequestMapping("orders")
+@RequestMapping("/orders")
 public class OrderController {
-    @Autowired
+
+     @Autowired
     private OrderService orderService;
 
+
+    // Solo admin
     @GetMapping
-    public List<Order> getOrders() {
-        return (List<Order>) orderService.getOrders();
+    public Page<Order> getOrders(@RequestParam(defaultValue = "0") int page,
+                                 @RequestParam(defaultValue = "10") int size) {
+        return orderService.getOrders(PageRequest.of(page, size));
     }
 
-    @GetMapping("/{orderId}")//seguir aca
-    public Optional<Order> getOrdersById(Long orderId){
-        return orderService.getOrdersById(orderId);
+    @GetMapping("/{orderId}")
+    public Optional<Order> getOrderById(@PathVariable Long orderId) {
+
+        return orderService.getOrderById(orderId);
     }
-    
-    @PostMapping("path")
-    public String postMethodName(@RequestBody String entity) {
-        //TODO: process POST request
-        
-        return entity;
-    }
-    
-    
-    
+
+
 
 }
