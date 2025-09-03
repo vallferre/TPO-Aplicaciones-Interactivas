@@ -2,11 +2,16 @@ package com.uade.tpo.marketplace.controllers;
 
 import com.uade.tpo.marketplace.entity.Cart;
 import com.uade.tpo.marketplace.entity.CartItem;
+import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.entity.dto.CartRequest;
+import com.uade.tpo.marketplace.entity.dto.CartResponse;
 import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
 import com.uade.tpo.marketplace.service.CartService;
+import com.uade.tpo.marketplace.service.UserService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,9 +25,11 @@ public class CartController {
 
     // Obtener el carrito de un usuario
     @GetMapping("/{userId}")
-    public ResponseEntity<List<CartItem>> getCartByUser(@PathVariable Long userId) {
-        List<CartItem> cartItems = cartService.getCartItems(userId);
-        return ResponseEntity.ok(cartItems);
+    public ResponseEntity<CartResponse> getCartByUser(@PathVariable Long userId, @AuthenticationPrincipal User requester) throws AccessDeniedException {
+
+        List<CartItem> cartItems = cartService.getCartItems(userId, requester);
+        CartResponse response = new CartResponse(cartItems, cartService.getCartTotal(userId));
+        return ResponseEntity.ok(response);
     }
 
     // Agregar producto al carrito
@@ -30,9 +37,10 @@ public class CartController {
     public ResponseEntity<Cart> addProductToCart(
             @PathVariable Long userId,
             @RequestBody CartRequest request,
-            @RequestParam(defaultValue = "1") int quantity) {
+            @RequestParam(defaultValue = "1") int quantity,
+            @AuthenticationPrincipal User requester) throws AccessDeniedException {
 
-        Cart updatedCart = cartService.addProductToCart(userId, request.getProductName(), quantity);
+        Cart updatedCart = cartService.addProductToCart(userId, request.getProductName(), quantity, requester);
         return ResponseEntity.ok(updatedCart);
     }
 
