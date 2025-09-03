@@ -2,6 +2,7 @@ package com.uade.tpo.marketplace.controllers;
 
 import com.uade.tpo.marketplace.entity.Cart;
 import com.uade.tpo.marketplace.entity.CartItem;
+import com.uade.tpo.marketplace.entity.dto.CartRequest;
 import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
 import com.uade.tpo.marketplace.service.CartService;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +29,10 @@ public class CartController {
     @PostMapping("/{userId}/add")
     public ResponseEntity<Cart> addProductToCart(
             @PathVariable Long userId,
-            @RequestParam String productName,
+            @RequestBody CartRequest request,
             @RequestParam(defaultValue = "1") int quantity) {
 
-        Cart updatedCart = cartService.addProductToCart(userId, productName, quantity);
+        Cart updatedCart = cartService.addProductToCart(userId, request.getProductName(), quantity);
         return ResponseEntity.ok(updatedCart);
     }
 
@@ -40,15 +41,15 @@ public class CartController {
     public ResponseEntity<Cart> removeProductFromCart(
             @RequestParam Long cartId,
             @PathVariable Long userId,
-            @RequestParam String productName) throws AccessDeniedException {
+            @RequestBody CartRequest request) throws AccessDeniedException {
 
-        Cart updatedCart = cartService.removeProductFromCart(cartId, productName, userId);
+        Cart updatedCart = cartService.removeProductFromCart(cartId, request.getProductName(), userId);
         return ResponseEntity.ok(updatedCart);
     }
 
     // Vaciar carrito
     @DeleteMapping("/{userId}/clear")
-    public ResponseEntity<Void> clearCart(@PathVariable Long userId) {
+    public ResponseEntity<Void> clearCart(@PathVariable Long userId) throws AccessDeniedException {
         cartService.clearCart(userId);
         return ResponseEntity.noContent().build();
     }
