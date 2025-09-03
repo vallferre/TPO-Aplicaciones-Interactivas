@@ -30,7 +30,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
 
                         // Cart -> solo usuarios autenticados con rol USER
-                        .requestMatchers(HttpMethod.GET, "/cart/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/cart/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/cart/**").hasRole("USER")
                         .requestMatchers(HttpMethod.PUT, "/cart/**").hasRole("USER")
                         .requestMatchers(HttpMethod.DELETE, "/cart/**").hasRole("USER")

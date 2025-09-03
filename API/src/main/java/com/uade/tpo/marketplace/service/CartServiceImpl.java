@@ -118,9 +118,14 @@ public class CartServiceImpl implements CartService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + userId));
 
-        if (!requester.getId().equals(userId) && !requester.getRole().equals("ROLE_ADMIN")) {
-        throw new AccessDeniedException();
-    }
+
+        boolean isAdmin = requester.getAuthorities().stream()
+        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!requester.getId().equals(userId) && !isAdmin) {
+            throw new AccessDeniedException();
+        }
+
         return cartRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Carrito no encontrado para el usuario con id: " + userId))
                 .getItems();
