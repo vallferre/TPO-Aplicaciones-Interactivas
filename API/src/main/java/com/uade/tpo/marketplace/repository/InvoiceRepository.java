@@ -8,7 +8,7 @@ import com.uade.tpo.marketplace.entity.Invoice;
 
 public interface InvoiceRepository {
     //buscar facturas por id de buyer
-    List<Invoice> findByBuyerrId(Long buyerId);
+    List<Invoice> findByBuyerId(Long buyerId);
 
     //buscar facturas por id de seller
     List<Invoice> findBySellerId(Long sellerId);
