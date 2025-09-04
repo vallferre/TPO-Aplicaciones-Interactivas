@@ -74,10 +74,10 @@ public class ProductServiceImpl implements ProductService {
     if (productRequest.getDescription() != null) {
         product.setDescription(productRequest.getDescription());
     }
-    if (productRequest.getStock() != 0) {
+    if (productRequest.getStock() > 0) {
         product.setStock(productRequest.getStock());
     }
-    if (productRequest.getPrice() != 0) {
+    if (productRequest.getPrice() > 0) {
         product.setPrice(productRequest.getPrice());
     }
 
@@ -101,3 +101,4 @@ public class ProductServiceImpl implements ProductService {
     return productRepository.save(product);
 }
 }
+
