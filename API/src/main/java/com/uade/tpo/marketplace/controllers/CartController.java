@@ -7,7 +7,6 @@ import com.uade.tpo.marketplace.entity.dto.CartRequest;
 import com.uade.tpo.marketplace.entity.dto.CartResponse;
 import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
 import com.uade.tpo.marketplace.service.CartService;
-import com.uade.tpo.marketplace.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

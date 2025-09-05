@@ -58,7 +58,6 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(productId);
     }
 
-    // ===================== NUEVO MÉTODO =====================
     public Product updateProduct(Long productId, Product productRequest, User currentUser) throws ProductNotFoundException {
     Product product = productRepository.findById(productId)
             .orElseThrow(ProductNotFoundException::new);

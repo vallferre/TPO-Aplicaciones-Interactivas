@@ -11,7 +11,7 @@ import com.uade.tpo.marketplace.entity.Category;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long>{
-    @Query(value = "select c from Category c where c.description = :description")   
+    @Query(value = "select c from Category c where lower(c.description) = lower(:description)")   
     List<Category> findByDescription(@Param("description") String description);
 
     List<Category> findByDescriptionIn(List<String> description); //.

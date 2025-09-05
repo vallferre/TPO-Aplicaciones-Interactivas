@@ -10,6 +10,6 @@ import com.uade.tpo.marketplace.entity.Cart;
 import com.uade.tpo.marketplace.entity.User;
 
 public interface CartRepository extends JpaRepository<Cart, Long>{
-    @Query("SELECT c FROM Cart c WHERE c.user = :user")
+    @Query("SELECT c FROM Cart c WHERE lower(c.user) = lower(:user)")
     Optional<Cart> findByUser(@Param("user") User user);
 }
