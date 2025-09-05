@@ -99,12 +99,28 @@ public class CartServiceImpl implements CartService {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
 
+        // Verificación de permisos
         if (!cart.getUser().getId().equals(userId)) {
             throw new AccessDeniedException();
         }
 
-        cart.getItems().removeIf(item -> item.getProduct().getName().equals(productName));
+        // Buscar el item correspondiente
+        CartItem itemToRemove = cart.getItems().stream()
+                .filter(item -> item.getProduct().getName().equals(productName))
+                .findFirst()
+                .orElse(null);
 
+        if (itemToRemove != null) {
+            if (itemToRemove.getQuantity() > 1) {
+                // Solo decrementa 1
+                itemToRemove.setQuantity(itemToRemove.getQuantity() - 1);
+            } else {
+                // Si la cantidad es 1, remover completamente
+                cart.getItems().remove(itemToRemove);
+            }
+        }
+
+        // Recalcular total
         double total = cart.getItems().stream()
                 .mapToDouble(item -> item.getQuantity() * item.getPriceAtAddTime())
                 .sum();
@@ -112,6 +128,7 @@ public class CartServiceImpl implements CartService {
 
         return cartRepository.save(cart);
     }
+
 
     // Método para mostrar los items del carrito
     public List<CartItem> getCartItems(Long userId, User requester) throws AccessDeniedException{
