@@ -51,7 +51,10 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(ProductNotFoundException::new);
 
-        if (!product.getOwner().getId().equals(currentUser.getId())) {
+        boolean isAdmin = currentUser.getAuthorities().stream()
+        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!product.getOwner().getId().equals(currentUser.getId()) && !isAdmin) {
             throw new RuntimeException("No tenés permiso para eliminar este producto");
         }
 

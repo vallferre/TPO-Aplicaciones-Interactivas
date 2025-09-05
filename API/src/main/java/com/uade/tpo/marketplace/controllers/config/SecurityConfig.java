@@ -37,13 +37,14 @@ public class SecurityConfig {
 
                         // Categories -> todos pueden ver y crear
                         .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/categories/**").hasRole("USER") 
+                        .requestMatchers(HttpMethod.POST, "/categories/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/categories/**").hasRole("ADMIN") 
 
                         // Products -> GET cualquiera, POST cualquiera, pero PUT/DELETE solo dueño (se valida en service)
                         .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/products/**").hasRole("USER")
                         .requestMatchers(HttpMethod.PUT, "/products/**").hasRole("USER")
-                        .requestMatchers(HttpMethod.DELETE, "/products/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/products/**").hasAnyRole("USER", "ADMIN")
 
                         .requestMatchers("/users/**").hasAnyRole("USER", "ADMIN")
 
