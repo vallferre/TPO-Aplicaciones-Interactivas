@@ -62,7 +62,10 @@ public class FavoriteServiceImpl implements FavoriteService {
     public Set<Product> getFavoriteProducts(Long userId) throws AccessDeniedException {
         User currentUser = getAuthenticatedUser();
 
-        if (!currentUser.getId().equals(userId)) {
+        boolean isAdmin = currentUser.getAuthorities().stream()
+        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!currentUser.getId().equals(userId) && !isAdmin) {
             throw new AccessDeniedException();
         }
 

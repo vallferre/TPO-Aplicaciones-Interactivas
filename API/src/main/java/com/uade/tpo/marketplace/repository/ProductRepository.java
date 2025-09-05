@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.uade.tpo.marketplace.entity.Category;
 import com.uade.tpo.marketplace.entity.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -18,7 +17,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     //Búsquedas básicas
     // Buscar por categoría (ManyToMany)
-    @Query("SELECT p FROM Product p JOIN p.categories c WHERE LOWER(c.name) = LOWER(:categoryName)")
+    @Query("SELECT p FROM Product p JOIN p.categories c WHERE LOWER(c.description) = LOWER(:categoryName)")
     List<Product> findByCategory(@Param("categoryName") String categoryName);
 
     // O por múltiples descripciones
@@ -46,10 +45,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByOrderByStockDesc();
 
     //Combinaciones personalizadas
-    @Query("SELECT p FROM Product p JOIN p.categories c WHERE LOWER(c.name) = LOWER(:categoryName) AND p.price < :price")
+    @Query("SELECT p FROM Product p JOIN p.categories c WHERE LOWER(c.description) = LOWER(:categoryName) AND p.price < :price")
     List<Product> findByCategoryAndPriceLessThan(@Param("categoryName") String categoryName, double price);
 
-    @Query("SELECT p FROM Product p JOIN p.categories c WHERE LOWER(c.name) = LOWER(:categoryName) AND p.price > :price")
+    @Query("SELECT p FROM Product p JOIN p.categories c WHERE LOWER(c.description) = LOWER(:categoryName) AND p.price > :price")
     List<Product> findByCategoryAndPriceGreaterThan(@Param("categoryName") String categoryName, double price);
 
     // Verifica si un producto ya existe para ese owner con mismo nombre y descripción (case-insensitive)

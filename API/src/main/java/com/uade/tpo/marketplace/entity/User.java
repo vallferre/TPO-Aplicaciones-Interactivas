@@ -1,5 +1,6 @@
 package com.uade.tpo.marketplace.entity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -12,10 +13,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -53,18 +56,22 @@ public class User implements UserDetails{
     @JsonIgnore
     private String password;
 
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"owner"})
+    private List<Product> products = new ArrayList<>();
+
     @OneToMany(mappedBy = "user")
     private List<Order> orders;
 
-   // facturas donde este usuario fue comprador
- @OneToMany(mappedBy = "buyer")
- @JsonIgnore
- private List<Invoice> purchases;
- 
- // facturas donde este usuario fue vendedor
- @OneToMany(mappedBy = "seller")
- @JsonIgnore
- private List<Invoice> sales;
+    // facturas donde este usuario fue comprador
+    @OneToMany(mappedBy = "buyer")
+    @JsonIgnore
+    private List<Invoice> purchases;
+    
+    // facturas donde este usuario fue vendedor
+    @OneToMany(mappedBy = "seller")
+    @JsonIgnore
+    private List<Invoice> sales;
 
 
     @Enumerated(EnumType.STRING)

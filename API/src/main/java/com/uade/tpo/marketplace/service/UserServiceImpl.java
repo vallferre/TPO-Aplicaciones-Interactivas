@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.marketplace.entity.User;
+import com.uade.tpo.marketplace.entity.dto.UserResponse;
 import com.uade.tpo.marketplace.exceptions.UserDuplicateException;
 import com.uade.tpo.marketplace.repository.UserRepository;
 
@@ -16,18 +17,48 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Override
-    public Optional<User> getUserById(Long userId) {
-        return userRepository.findById(userId);
+    public Optional<UserResponse> getUserById(Long userId, User requester) {
+        boolean isAdmin = requester.getAuthorities().stream()
+        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        return userRepository.findById(userId)
+            .map(user -> {
+                if (requester.getId().equals(userId) || isAdmin) {
+                    return UserResponse.full(user);
+                } else {
+                    return UserResponse.limited(user);
+                }
+            });
     }
 
     @Override
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public Optional<UserResponse> getUserByEmail(String email, User requester) {
+        boolean isAdmin = requester.getAuthorities().stream()
+        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        return userRepository.findByEmail(email)
+            .map(user -> {
+                if (requester.getId().equals(user.getId()) || isAdmin) {
+                    return UserResponse.full(user);
+                } else {
+                    return UserResponse.limited(user);
+                }
+            });
     }
 
     @Override
-    public Optional<User> getUserByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public Optional<UserResponse> getUserByUsername(String username, User requester) {
+        boolean isAdmin = requester.getAuthorities().stream()
+        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        return userRepository.findByUsername(username)
+            .map(user -> {
+                if (requester.getId().equals(user.getId()) || isAdmin) {
+                    return UserResponse.full(user);
+                } else {
+                    return UserResponse.limited(user);
+                }
+            });
     }
 
     @Override

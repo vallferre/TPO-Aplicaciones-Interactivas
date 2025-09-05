@@ -45,11 +45,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/products/**").hasRole("USER")
                         .requestMatchers(HttpMethod.DELETE, "/products/**").hasRole("USER")
 
-                        .requestMatchers(HttpMethod.GET, "/users/{userId}").hasRole("USER")
-                        .requestMatchers(HttpMethod.GET, "/users/{userId}/favorites").hasRole("USER")
-                        .requestMatchers(HttpMethod.POST, "/users/{userId}/favorites").hasRole("USER")
-                        .requestMatchers(HttpMethod.PUT, "/users/{userId}/favorites").hasRole("USER")
-                        .requestMatchers(HttpMethod.DELETE, "/users/{userId}/favorites").hasRole("USER")
+                        .requestMatchers("/users/**").hasAnyRole("USER", "ADMIN")
 
                         .anyRequest().authenticated())
                         .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
