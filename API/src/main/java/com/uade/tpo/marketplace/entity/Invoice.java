@@ -25,7 +25,7 @@ public class Invoice {
     private Double total;
     
     @OneToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "id")
+    @JoinColumn(name = "order_id", referencedColumnName = "id", unique = true)
     private Order order;
     
     @ManyToOne 
@@ -35,23 +35,4 @@ public class Invoice {
     @ManyToOne 
     @JoinColumn(name = "seller_id", nullable = false) 
     private User seller;
-
-
-    /* 
-    @Column(nullable = false)
-    private LocalDateTime issueDate;
-
-    @OneToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "id")
-    private Order order;
-
-    @ManyToOne
-    @Column(nullable = false)
-    private User buyer;
-
-    @ManyToMany
-    @Column(nullable = false)
-    private Set<User> sellers = new HashSet<>();
-
-    */
 }

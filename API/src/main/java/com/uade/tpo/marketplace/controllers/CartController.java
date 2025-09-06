@@ -2,6 +2,7 @@ package com.uade.tpo.marketplace.controllers;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,9 +21,11 @@ import com.uade.tpo.marketplace.entity.Order;
 import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.entity.dto.CartRequest;
 import com.uade.tpo.marketplace.entity.dto.CartResponse;
+import com.uade.tpo.marketplace.entity.dto.OrderResponse;
 import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
 import com.uade.tpo.marketplace.exceptions.InsufficientStockException;
 import com.uade.tpo.marketplace.service.CartService;
+import com.uade.tpo.marketplace.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CartController {
 
+    @Autowired
     private final CartService cartService;
 
     // Obtener el carrito de un usuario
@@ -38,30 +42,33 @@ public class CartController {
     public ResponseEntity<CartResponse> getCartByUser(@PathVariable Long userId, @AuthenticationPrincipal User requester) throws AccessDeniedException {
 
         List<CartItem> cartItems = cartService.getCartItems(userId, requester);
-        CartResponse response = new CartResponse(cartItems, cartService.getCartTotal(userId));
+        CartResponse response = new CartResponse(cartService.get(userId), cartItems);
         return ResponseEntity.ok(response);
     }
 
     // Agregar producto al carrito
     @PostMapping("/{userId}/add")
-    public ResponseEntity<Cart> addProductToCart(
+    public ResponseEntity<CartResponse> addProductToCart(
             @PathVariable Long userId,
             @RequestBody CartRequest request,
             @RequestParam(defaultValue = "1") int quantity,
             @AuthenticationPrincipal User requester) throws AccessDeniedException {
 
         Cart updatedCart = cartService.addProductToCart(userId, request.getProductName(), quantity, requester);
-        return ResponseEntity.ok(updatedCart);
+        CartResponse response = new CartResponse(updatedCart, cartService.getCartItems(userId, requester));
+        return ResponseEntity.ok(response);
     }
 
     // Eliminar producto del carrito
     @DeleteMapping("/{userId}/remove")
-    public ResponseEntity<Cart> removeProductFromCart(
+    public ResponseEntity<CartResponse> removeProductFromCart(
             @PathVariable Long userId,
-            @RequestBody CartRequest request) throws AccessDeniedException {
+            @RequestBody CartRequest request,
+            @AuthenticationPrincipal User requester) throws AccessDeniedException {
 
         Cart updatedCart = cartService.removeProductFromCart(request.getProductName(), userId);
-        return ResponseEntity.ok(updatedCart);
+        CartResponse response = new CartResponse(updatedCart, cartService.getCartItems(userId, requester));
+        return ResponseEntity.ok(response);
     }
 
     // Vaciar carrito
@@ -72,12 +79,13 @@ public class CartController {
     }
 
     @PostMapping("/{userId}/checkout")
-    public ResponseEntity<Order> checkout(
+    public ResponseEntity<OrderResponse> checkout(
             @PathVariable Long userId  // 
     ) throws InsufficientStockException {
         try {
             Order order = cartService.checkout(userId);
-            return ResponseEntity.ok(order);
+            OrderResponse response = new OrderResponse(order);
+            return ResponseEntity.ok(response);
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (InsufficientStockException e) {

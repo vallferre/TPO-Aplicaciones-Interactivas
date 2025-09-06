@@ -215,9 +215,15 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public double getCartTotal(Long userId) {
-    Cart cart = cartRepository.findByUser(userId)
-            .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
-    return cart.calculateTotal();
-}
+        Cart cart = cartRepository.findByUser(userId)
+                .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
+        return cart.calculateTotal();
+    }
+
+    @Override
+    public Cart get(Long userId) {
+        return cartRepository.getCartByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
+    }
 
 }

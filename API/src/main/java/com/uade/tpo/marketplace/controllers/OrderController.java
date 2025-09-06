@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.tpo.marketplace.entity.Invoice;
 import com.uade.tpo.marketplace.entity.Order;
+import com.uade.tpo.marketplace.entity.dto.OrderResponse;
+import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
 import com.uade.tpo.marketplace.service.OrderService;
 
 @RestController
@@ -33,21 +35,22 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}")
-    public Optional<Order> getOrderById(@PathVariable Long orderId) {
+    public Optional<OrderResponse> getOrderById(@PathVariable Long orderId) throws AccessDeniedException {
+        OrderResponse orderResponse = new OrderResponse(orderService.getOrderById(orderId).orElseThrow(() -> new RuntimeException("Order not found")));
 
-        return orderService.getOrderById(orderId);
+        return orderResponse != null ? Optional.of(orderResponse) : Optional.empty();
     }
 
     // Obtener órdenes de un usuario (solo admin o el mismo usuario)
     @GetMapping("/user/{userId}")
     public Page<Order> getOrdersByUser(@PathVariable Long userId,
                                        @RequestParam(defaultValue = "0") int page,
-                                       @RequestParam(defaultValue = "10") int size) {
+                                       @RequestParam(defaultValue = "10") int size) throws AccessDeniedException {
         return orderService.getOrdersByUser(PageRequest.of(page, size), userId);
     }
 
     @PostMapping("/{orderId}/invoice")
-    public ResponseEntity<Invoice> generateInvoice(@PathVariable Long orderId) {
+    public ResponseEntity<Invoice> generateInvoice(@PathVariable Long orderId) throws AccessDeniedException {
         try {
             Invoice invoice = orderService.generateInvoiceForOrder(orderId);
             return ResponseEntity.ok(invoice);

@@ -16,4 +16,5 @@ public interface CartService {
     public void clearCart(Long userId) throws AccessDeniedException;
     public Order checkout(Long userId) throws AccessDeniedException, InsufficientStockException;
     public double getCartTotal(Long userId);
+    public Cart get(Long userId);
 }

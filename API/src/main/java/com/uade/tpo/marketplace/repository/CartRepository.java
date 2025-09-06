@@ -11,4 +11,7 @@ import com.uade.tpo.marketplace.entity.Cart;
 public interface CartRepository extends JpaRepository<Cart, Long>{
     @Query("SELECT c FROM Cart c WHERE c.user.id = :userId")
     Optional<Cart> findByUser(@Param("userId") Long userId);
+
+    @Query("SELECT c FROM Cart c WHERE c.user.id = :userId")
+    Optional<Cart> getCartByUserId(@Param("userId") Long userId);
 }
