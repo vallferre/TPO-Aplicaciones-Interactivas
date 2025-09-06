@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.uade.tpo.marketplace.entity.Category;
 import com.uade.tpo.marketplace.entity.Order;
 import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.User;
@@ -18,25 +19,51 @@ public class UserResponse {
     private String surname;
     private String username;
     private List<Order> orders;
-    private List<Product> products;
+    private List<ProductResponse> products;
     private Set<Product> favoriteProducts;
 
-    public static UserResponse full(User user){
+    public static UserResponse full(User user, List<Product> products){
         UserResponse res = new UserResponse();
         res.email = user.getEmail();
         res.name = user.getName();
         res.surname = user.getSurname();
-        res.username = user.getUsername();
+        res.username = user.getUserN();
         res.orders = user.getOrders();
-        res.products = user.getProducts();
+        res.products = products.stream()
+            .map(p -> new ProductResponse(
+                    p.getName(),
+                    p.getDescription(),
+                    p.getStock(),
+                    p.getPrice(),
+                    p.getCategories().stream()
+                                     .map(Category::getDescription) // convertir categorías
+                                     .toList(),
+                    p.getImages(),
+                    p.getVideos()
+            ))
+            .toList();
+
         res.favoriteProducts = user.getFavoriteProducts();
         return res;
     }
 
-    public static UserResponse limited(User user){
+    public static UserResponse limited(User user, List<Product> products){
         UserResponse res = new UserResponse();
-        res.username = user.getUsername();
-        res.products = user.getProducts();
+        res.username = user.getUserN();
+        res.products = products.stream()
+            .map(p -> new ProductResponse(
+                    p.getName(),
+                    p.getDescription(),
+                    p.getStock(),
+                    p.getPrice(),
+                    p.getCategories().stream()
+                                     .map(Category::getDescription) // convertir categorías
+                                     .toList(),
+                    p.getImages(),
+                    p.getVideos()
+            ))
+            .toList();
+
         return res;
     }
 }

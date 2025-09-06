@@ -15,6 +15,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE LOWER(p.name) = LOWER(:name)")
     Optional<Product> findByName(String name);
 
+    @Query(value = "SELECT * FROM product p WHERE p.owner_id = :ownerId", nativeQuery = true)
+    List<Product> findByOwner(@Param("ownerId") Long ownerId);
     //Búsquedas básicas
     // Buscar por categoría (ManyToMany)
     @Query("SELECT p FROM Product p JOIN p.categories c WHERE LOWER(c.description) = LOWER(:categoryName)")

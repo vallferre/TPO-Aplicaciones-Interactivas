@@ -1,13 +1,16 @@
 package com.uade.tpo.marketplace.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.entity.dto.UserResponse;
 import com.uade.tpo.marketplace.exceptions.UserDuplicateException;
+import com.uade.tpo.marketplace.repository.ProductRepository;
 import com.uade.tpo.marketplace.repository.UserRepository;
 
 @Service
@@ -16,6 +19,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ProductRepository productRepository;
+
     @Override
     public Optional<UserResponse> getUserById(Long userId, User requester) {
         boolean isAdmin = requester.getAuthorities().stream()
@@ -23,10 +29,11 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.findById(userId)
             .map(user -> {
+                List<Product> products = productRepository.findByOwner(userId);
                 if (requester.getId().equals(userId) || isAdmin) {
-                    return UserResponse.full(user);
+                    return UserResponse.full(user, products);
                 } else {
-                    return UserResponse.limited(user);
+                    return UserResponse.limited(user, products);
                 }
             });
     }
@@ -38,10 +45,11 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.findByEmail(email)
             .map(user -> {
+                List<Product> products = productRepository.findByOwner(user.getId());
                 if (requester.getId().equals(user.getId()) || isAdmin) {
-                    return UserResponse.full(user);
+                    return UserResponse.full(user, products);
                 } else {
-                    return UserResponse.limited(user);
+                    return UserResponse.limited(user, products);
                 }
             });
     }
@@ -51,12 +59,15 @@ public class UserServiceImpl implements UserService {
         boolean isAdmin = requester.getAuthorities().stream()
         .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
 
+
+
         return userRepository.findByUsername(username)
             .map(user -> {
+                List<Product> products = productRepository.findByOwner(user.getId());
                 if (requester.getId().equals(user.getId()) || isAdmin) {
-                    return UserResponse.full(user);
+                    return UserResponse.full(user, products);
                 } else {
-                    return UserResponse.limited(user);
+                    return UserResponse.limited(user, products);
                 }
             });
     }

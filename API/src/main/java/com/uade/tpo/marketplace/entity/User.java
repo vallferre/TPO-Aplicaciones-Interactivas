@@ -56,10 +56,6 @@ public class User implements UserDetails{
     @JsonIgnore
     private String password;
 
-    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonIgnoreProperties({"owner"})
-    private List<Product> products = new ArrayList<>();
-
     @OneToMany(mappedBy = "user")
     private List<Order> orders;
 
@@ -81,6 +77,10 @@ public class User implements UserDetails{
     @Override
     public String getUsername() {
         return email;
+    }
+
+    public String getUserN(){
+        return username;
     }
 
     @Override
