@@ -39,6 +39,7 @@ public class CartServiceImpl implements CartService {
 
     //agrego al carrito
     @Transactional
+    @Override
     public Cart addProductToCart(Long userId, String productName, int quantity, User requester) throws AccessDeniedException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + userId));
@@ -55,7 +56,7 @@ public class CartServiceImpl implements CartService {
         }
 
         // Obtener o crear carrito
-        Cart cart = cartRepository.findByUser(user).orElseGet(() -> {
+        Cart cart = cartRepository.findByUser(userId).orElseGet(() -> {
             Cart newCart = new Cart();
             newCart.setUser(user);
             newCart.setItems(new ArrayList<>());
@@ -63,30 +64,36 @@ public class CartServiceImpl implements CartService {
             return newCart;
         });
 
-        // Buscar si el producto ya está en el carrito
-        Optional<CartItem> existingItemOpt = cart.getItems().stream()
+        // 🔑 Validar que todos los productos del carrito sean del mismo owner
+        if (!cart.getItems().isEmpty()) {
+            boolean sameOwner = cart.getItems().stream()
+                .map(item -> item.getProduct().getOwner().getId())
+                .allMatch(ownerId -> ownerId.equals(product.getOwner().getId()));
+
+            if (!sameOwner) {
+                throw new RuntimeException("El carrito solo puede contener productos de un único vendedor.");
+        }
+}
+
+        // Buscar si ya existe el producto en el carrito
+        Optional<CartItem> existingItem = cart.getItems().stream()
                 .filter(item -> item.getProduct().getId().equals(product.getId()))
                 .findFirst();
 
-        if (existingItemOpt.isPresent()) {
-            CartItem existingItem = existingItemOpt.get();
-            existingItem.setQuantity(existingItem.getQuantity() + quantity);
-            existingItem.setPriceAtAddTime(product.getPrice()); // opcional, actualizar precio congelado
+        if (existingItem.isPresent()) {
+            CartItem item = existingItem.get();
+            item.setQuantity(item.getQuantity() + quantity);
         } else {
-            // Crear nuevo CartItem
             CartItem newItem = new CartItem();
-            newItem.setCart(cart);
             newItem.setProduct(product);
             newItem.setQuantity(quantity);
-            newItem.setPriceAtAddTime(product.getPrice());
-            newItem.setAddedAt(java.time.LocalDateTime.now());
-
+            newItem.setCart(cart);
             cart.getItems().add(newItem);
         }
 
-        // Actualizar total del carrito
+        // Actualizar total
         double total = cart.getItems().stream()
-                .mapToDouble(item -> item.getQuantity() * item.getPriceAtAddTime())
+                .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity())
                 .sum();
         cart.setTotal(total);
 
@@ -95,8 +102,9 @@ public class CartServiceImpl implements CartService {
 
     //elimino producto del carrito
     @Transactional
-    public Cart removeProductFromCart(Long cartId, String productName, Long userId) throws AccessDeniedException {
-        Cart cart = cartRepository.findById(cartId)
+    @Override
+    public Cart removeProductFromCart(String productName, Long userId) throws AccessDeniedException {
+        Cart cart = cartRepository.findByUser(userId)
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
 
         // Verificación de permisos
@@ -131,11 +139,8 @@ public class CartServiceImpl implements CartService {
 
 
     // Método para mostrar los items del carrito
+    @Override
     public List<CartItem> getCartItems(Long userId, User requester) throws AccessDeniedException{
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + userId));
-
-
         boolean isAdmin = requester.getAuthorities().stream()
         .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
 
@@ -143,18 +148,16 @@ public class CartServiceImpl implements CartService {
             throw new AccessDeniedException();
         }
 
-        return cartRepository.findByUser(user)
+        return cartRepository.findByUser(userId)
                 .orElseThrow(() -> new RuntimeException("Carrito no encontrado para el usuario con id: " + userId))
                 .getItems();
     }
 
     // Método para vaciar el carrito
     @Transactional
+    @Override
     public void clearCart(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-        Cart cart = cartRepository.findByUser(user)
+        Cart cart = cartRepository.findByUser(userId)
                 .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
 
         cart.getItems().clear();
@@ -166,21 +169,12 @@ public class CartServiceImpl implements CartService {
 
     //convierto carrito en orden y descuento del stock
     @Transactional
-    public Order checkout(Long cartId, Long userId) throws AccessDeniedException, InsufficientStockException {
-        // Obtener carrito
-        Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
+    @Override
+    public Order checkout(Long userId) throws AccessDeniedException, InsufficientStockException {
+        Cart cart = cartRepository.findByUser(userId)
+            .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
 
-        // Verificar ownership
-        if (!cart.getUser().getId().equals(userId)) {
-            throw new AccessDeniedException();
-        }
-
-        if (cart.getItems().isEmpty()) {
-            throw new RuntimeException("El carrito está vacío");
-        }
-
-        // Primero validar stock de todos los productos antes de modificar nada
+        // Validate stock availability
         for (CartItem item : cart.getItems()) {
             if (item.getProduct().getStock() < item.getQuantity()) {
                 throw new InsufficientStockException(
@@ -189,17 +183,14 @@ public class CartServiceImpl implements CartService {
             }
         }
 
-        // Crear orden
+        // Apply Checkout process
         Order order = new Order();
         order.setUser(cart.getUser());
         order.setItems(new ArrayList<>());
-        order.setCount((long) cart.getItems().size());
 
-        // Crear OrderItems y actualizar stock
         for (CartItem cartItem : cart.getItems()) {
             Product product = cartItem.getProduct();
             product.setStock(product.getStock() - cartItem.getQuantity());
-            productRepository.save(product);
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
@@ -210,17 +201,21 @@ public class CartServiceImpl implements CartService {
             order.getItems().add(orderItem);
         }
 
-        // Vaciar carrito correctamente
-        cart.getItems().clear();
-        cartRepository.save(cart);
+        // Usar métodos auxiliares
+        order.setTotalAmount(cart.calculateTotal());
+        order.setCount(cart.getItems().stream()
+                        .mapToLong(CartItem::getQuantity)
+                        .sum());
 
-        // Guardar y retornar la orden
+        // Vaciar carrito
+        cart.getItems().clear();
+
         return orderRepository.save(order);
     }
 
+    @Override
     public double getCartTotal(Long userId) {
-    Cart cart = cartRepository.findByUser(userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado")))
+    Cart cart = cartRepository.findByUser(userId)
             .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
     return cart.calculateTotal();
 }
