@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.uade.tpo.marketplace.entity.Invoice;
 import com.uade.tpo.marketplace.entity.Order;
 import com.uade.tpo.marketplace.entity.User;
+import com.uade.tpo.marketplace.entity.dto.InvoiceResponse;
 import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
 import com.uade.tpo.marketplace.repository.InvoiceRepository;
 import com.uade.tpo.marketplace.repository.OrderRepository;
@@ -36,7 +37,7 @@ public class OrderServiceImpl implements OrderService {
 
         User currentUser = getCurrentUser();
         // Si el usuario no es admin y no es el dueño de la orden
-        if (!currentUser.getId().equals(order.getUser().getId()) && !currentUser.getRole().equals("ADMIN")) {
+        if (!currentUser.getId().equals(order.getUser().getId()) && !currentUser.getRole().equals(User.RoleName.ADMIN)) {
             throw new AccessDeniedException();
         }
 
@@ -54,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
         User currentUser = (User) auth.getPrincipal(); // asumimos que tu UserDetailsService devuelve tu entidad User
 
         // Validar permisos
-        if (!currentUser.getId().equals(userId) && !currentUser.getRole().equals("ROLE_ADMIN")) {
+        if (!currentUser.getId().equals(userId) && !currentUser.getRole().equals(User.RoleName.ADMIN)) {
             throw new AccessDeniedException();
         }
 
@@ -62,15 +63,13 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findByUserId(userId, pageable);
     }
 
-    @Override
     @Transactional
-    public Invoice generateInvoiceForOrder(Long orderId) throws AccessDeniedException {
-        // Buscar la orden
+    @Override
+    public InvoiceResponse generateInvoiceForOrder(Long orderId) throws AccessDeniedException {
         Order order = orderRepository.findById(orderId)
             .orElseThrow(() -> new RuntimeException("Orden no encontrada con id: " + orderId));
 
         User currentUser = getCurrentUser();
-        // Validación: solo el comprador puede generar su invoice
         if (!currentUser.getId().equals(order.getUser().getId())) {
             throw new AccessDeniedException();
         }
@@ -83,6 +82,7 @@ public class OrderServiceImpl implements OrderService {
         if (order.getItems().isEmpty()) {
             throw new RuntimeException("La orden no tiene items, no se puede generar la factura.");
         }
+
         User seller = order.getItems().get(0).getProduct().getOwner();
 
         Invoice invoice = new Invoice();
@@ -92,12 +92,15 @@ public class OrderServiceImpl implements OrderService {
         invoice.setBuyer(order.getUser());
         invoice.setSeller(seller);
 
-        return invoiceRepository.save(invoice);
+        Invoice savedInvoice = invoiceRepository.save(invoice);
+
+        return new InvoiceResponse(savedInvoice); // <--- devuelves el DTO
     }
+
 
     private User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return (User) auth.getPrincipal(); // o buscá por username/email en UserRepository
+        return (User) auth.getPrincipal(); 
     }
     
 }

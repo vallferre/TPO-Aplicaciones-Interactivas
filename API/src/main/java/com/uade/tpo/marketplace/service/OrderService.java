@@ -5,8 +5,9 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.uade.tpo.marketplace.entity.Invoice;
+
 import com.uade.tpo.marketplace.entity.Order;
+import com.uade.tpo.marketplace.entity.dto.InvoiceResponse;
 import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
 
 public interface OrderService {
@@ -17,6 +18,6 @@ public interface OrderService {
 
     public Page<Order> getOrdersByUser(Pageable pageable, Long userId) throws AccessDeniedException;
 
-    public Invoice generateInvoiceForOrder(Long orderId) throws AccessDeniedException;
+    public InvoiceResponse generateInvoiceForOrder(Long orderId) throws AccessDeniedException;
 
 }

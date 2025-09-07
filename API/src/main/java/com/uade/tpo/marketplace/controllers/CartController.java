@@ -2,10 +2,8 @@ package com.uade.tpo.marketplace.controllers;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,14 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.uade.tpo.marketplace.entity.Cart;
 import com.uade.tpo.marketplace.entity.CartItem;
 import com.uade.tpo.marketplace.entity.Order;
-import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.entity.dto.CartRequest;
 import com.uade.tpo.marketplace.entity.dto.CartResponse;
 import com.uade.tpo.marketplace.entity.dto.OrderResponse;
 import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
+import com.uade.tpo.marketplace.exceptions.EmptyCartException;
 import com.uade.tpo.marketplace.exceptions.InsufficientStockException;
 import com.uade.tpo.marketplace.service.CartService;
-import com.uade.tpo.marketplace.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,16 +31,21 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CartController {
 
-    @Autowired
     private final CartService cartService;
 
     // Obtener el carrito de un usuario
     @GetMapping("/{userId}")
-    public ResponseEntity<CartResponse> getCartByUser(@PathVariable Long userId, @AuthenticationPrincipal User requester) throws AccessDeniedException {
-
-        List<CartItem> cartItems = cartService.getCartItems(userId, requester);
-        CartResponse response = new CartResponse(cartService.get(userId), cartItems);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<CartResponse> getCartByUser(@PathVariable Long userId) {
+        try {
+            Cart cart = cartService.get(userId);
+            List<CartItem> cartItems = cart.getItems();
+            CartResponse response = new CartResponse(cart, cartItems);
+            return ResponseEntity.ok(response);
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Agregar producto al carrito
@@ -51,49 +53,60 @@ public class CartController {
     public ResponseEntity<CartResponse> addProductToCart(
             @PathVariable Long userId,
             @RequestBody CartRequest request,
-            @RequestParam(defaultValue = "1") int quantity,
-            @AuthenticationPrincipal User requester) throws AccessDeniedException {
+            @RequestParam(defaultValue = "1") int quantity) {
 
-        Cart updatedCart = cartService.addProductToCart(userId, request.getProductName(), quantity, requester);
-        CartResponse response = new CartResponse(updatedCart, cartService.getCartItems(userId, requester));
-        return ResponseEntity.ok(response);
+        try {
+            Cart updatedCart = cartService.addProductToCart(userId, request.getProductName(), quantity);
+            CartResponse response = new CartResponse(updatedCart, updatedCart.getItems());
+            return ResponseEntity.ok(response);
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     // Eliminar producto del carrito
     @DeleteMapping("/{userId}/remove")
     public ResponseEntity<CartResponse> removeProductFromCart(
             @PathVariable Long userId,
-            @RequestBody CartRequest request,
-            @AuthenticationPrincipal User requester) throws AccessDeniedException {
+            @RequestBody CartRequest request) {
 
-        Cart updatedCart = cartService.removeProductFromCart(request.getProductName(), userId);
-        CartResponse response = new CartResponse(updatedCart, cartService.getCartItems(userId, requester));
-        return ResponseEntity.ok(response);
+        try {
+            Cart updatedCart = cartService.removeProductFromCart(request.getProductName(), userId);
+            CartResponse response = new CartResponse(updatedCart, updatedCart.getItems());
+            return ResponseEntity.ok(response);
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     // Vaciar carrito
     @DeleteMapping("/{userId}/clear")
-    public ResponseEntity<Void> clearCart(@PathVariable Long userId) throws AccessDeniedException {
-        cartService.clearCart(userId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> clearCart(@PathVariable Long userId) {
+        try {
+            cartService.clearCart(userId);
+            return ResponseEntity.noContent().build();
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 
+    // Checkout
     @PostMapping("/{userId}/checkout")
-    public ResponseEntity<OrderResponse> checkout(
-            @PathVariable Long userId  // 
-    ) throws InsufficientStockException {
+    public ResponseEntity<?> checkout(@PathVariable Long userId) {
         try {
             Order order = cartService.checkout(userId);
-            OrderResponse response = new OrderResponse(order);
+            OrderResponse response = new OrderResponse(order); // <-- construir DTO
             return ResponseEntity.ok(response);
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (InsufficientStockException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body(null); 
+        } catch (EmptyCartException | InsufficientStockException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 }
-

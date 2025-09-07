@@ -1,6 +1,5 @@
 package com.uade.tpo.marketplace.entity.dto;
 
-import com.uade.tpo.marketplace.entity.Cart;
 import com.uade.tpo.marketplace.entity.CartItem;
 
 import lombok.Data;
