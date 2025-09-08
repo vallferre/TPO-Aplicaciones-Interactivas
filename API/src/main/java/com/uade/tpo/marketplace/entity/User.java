@@ -65,8 +65,8 @@ public class User implements UserDetails{
     @OneToMany(mappedBy = "seller")
     @JsonIgnore
     private List<Invoice> sales;
-
-
+    
+  
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RoleName role;
