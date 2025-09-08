@@ -28,7 +28,15 @@ public class CategoryServiceImpl implements CategoryService{
         List<Category> categories = categoryRepository.findByDescription(description);
         if (categories.isEmpty())
             return categoryRepository.save(new Category(description));
-        throw new CategoryDuplicateException();
+        throw new CategoryDuplicateException("La categoría '" + description + "' ya existe.");
+
     }
 
+    @Override
+    public Optional<Category> getCategoryByDescription(String description) {
+        List<Category> categories = categoryRepository.findByDescription(description);
+        if (categories.isEmpty())
+            return Optional.empty();
+        return Optional.of(categories.get(0));
+    }
 }

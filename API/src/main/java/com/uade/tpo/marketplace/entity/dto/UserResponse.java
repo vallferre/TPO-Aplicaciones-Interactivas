@@ -35,6 +35,7 @@ public class UserResponse {
                     p.getDescription(),
                     p.getStock(),
                     p.getPrice(),
+                    p.getOwner().getUserN(),
                     p.getCategories().stream()
                                      .map(Category::getDescription) // convertir categorías
                                      .toList(),
@@ -56,6 +57,7 @@ public class UserResponse {
                     p.getDescription(),
                     p.getStock(),
                     p.getPrice(),
+                    p.getOwner().getUserN(),
                     p.getCategories().stream()
                                      .map(Category::getDescription) // convertir categorías
                                      .toList(),

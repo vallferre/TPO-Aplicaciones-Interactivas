@@ -44,4 +44,14 @@ public class GlobalExceptionHandler {
         body.put("message", ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(CategoryDuplicateException.class)
+    public ResponseEntity<Map<String, Object>> handleCategoryDuplicate(CategoryDuplicateException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("error", "Duplicate category");
+        body.put("message", ex.getMessage());
+        body.put("status", HttpStatus.CONFLICT.value());
+        body.put("timestamp", LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
 }

@@ -16,6 +16,7 @@ import com.uade.tpo.marketplace.entity.Category;
 import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.entity.dto.ProductRequest;
+import com.uade.tpo.marketplace.entity.dto.ProductResponse;
 import com.uade.tpo.marketplace.exceptions.ProductDuplicateException;
 import com.uade.tpo.marketplace.exceptions.ProductNotFoundException;
 import com.uade.tpo.marketplace.repository.CategoryRepository;
@@ -36,18 +37,25 @@ public class ProductsController {
     private CategoryRepository categoryRepository;
 
     @GetMapping
-    public ResponseEntity<Page<Product>> getProducts(
+    public ResponseEntity<Page<ProductResponse>> getProducts(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
-        if (page == null || size == null)
-            return ResponseEntity.ok(productService.getProducts(PageRequest.of(0, Integer.MAX_VALUE)));
-        return ResponseEntity.ok(productService.getProducts(PageRequest.of(page, size)));
+        if (page == null || size == null) {
+            return ResponseEntity.ok(
+                    productService.getProducts(PageRequest.of(0, Integer.MAX_VALUE))
+                                  .map(ProductResponse::from)
+            );
+        }
+        return ResponseEntity.ok(
+                productService.getProducts(PageRequest.of(page, size))
+                              .map(ProductResponse::from)
+        );
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long productId) {
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long productId) {
         Optional<Product> result = productService.getProductById(productId);
-        return result.map(ResponseEntity::ok)
+        return result.map(p -> ResponseEntity.ok(ProductResponse.from(p)))
                      .orElseGet(() -> ResponseEntity.noContent().build());
     }
 
@@ -86,7 +94,7 @@ public class ProductsController {
         Product result = productService.createProduct(newProduct, currentUser);
 
         return ResponseEntity.created(URI.create("/products/" + result.getId()))
-                .body(result);
+                             .body(ProductResponse.from(result));
     }
 
     @DeleteMapping("/{productId}")
@@ -100,48 +108,92 @@ public class ProductsController {
 
     // ==================== NUEVO ENDPOINT UNIFICADO ====================
     @PutMapping("/{productId}")
-    public ResponseEntity<Product> updateProduct(
+    public ResponseEntity<ProductResponse> updateProduct(
             @PathVariable Long productId,
             @RequestBody Product updatedProduct,
             @AuthenticationPrincipal User currentUser) throws ProductNotFoundException {
 
         Product result = productService.updateProduct(productId, updatedProduct, currentUser);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(ProductResponse.from(result));
     }
 
     // ==================== Endpoints extra ====================
     @GetMapping("/out-of-stock")
-    public ResponseEntity<List<Product>> getOutOfStock() {
-        return ResponseEntity.ok(productRepository.findOutOfStock());
+    public ResponseEntity<List<ProductResponse>> getOutOfStock() {
+        return ResponseEntity.ok(
+                productRepository.findOutOfStock().stream()
+                        .map(ProductResponse::from)
+                        .toList()
+        );
     }
 
     @GetMapping("/cheaper-than")
-    public ResponseEntity<List<Product>> getProductsCheaperThan(@RequestParam double price) {
-        return ResponseEntity.ok(productRepository.findByPriceLessThan(price));
+    public ResponseEntity<List<ProductResponse>> getProductsCheaperThan(@RequestParam double price) {
+        return ResponseEntity.ok(
+                productRepository.findByPriceLessThan(price).stream()
+                        .map(ProductResponse::from)
+                        .toList()
+        );
     }
 
     @GetMapping("/expensive-than")
-    public ResponseEntity<List<Product>> getProductsMoreExpensiveThan(@RequestParam double price) {
-        return ResponseEntity.ok(productRepository.findByPriceGreaterThan(price));
+    public ResponseEntity<List<ProductResponse>> getProductsMoreExpensiveThan(@RequestParam double price) {
+        return ResponseEntity.ok(
+                productRepository.findByPriceGreaterThan(price).stream()
+                        .map(ProductResponse::from)
+                        .toList()
+        );
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Product>> searchProducts(@RequestParam String keyword) {
-        return ResponseEntity.ok(productRepository.findByDescriptionContainingIgnoreCase(keyword));
+    public ResponseEntity<List<ProductResponse>> searchProducts(@RequestParam String keyword) {
+        return ResponseEntity.ok(
+                productRepository.findByDescriptionContainingIgnoreCase(keyword).stream()
+                        .map(ProductResponse::from)
+                        .toList()
+        );
     }
 
     @GetMapping("/order-by-price-asc")
-    public ResponseEntity<List<Product>> getProductsOrderByPriceAsc() {
-        return ResponseEntity.ok(productRepository.findAllByOrderByPriceAsc());
+    public ResponseEntity<List<ProductResponse>> getProductsOrderByPriceAsc() {
+        return ResponseEntity.ok(
+                productRepository.findAllByOrderByPriceAsc().stream()
+                        .map(ProductResponse::from)
+                        .toList()
+        );
     }
 
     @GetMapping("/order-by-price-desc")
-    public ResponseEntity<List<Product>> getProductsOrderByPriceDesc() {
-        return ResponseEntity.ok(productRepository.findAllByOrderByPriceDesc());
+    public ResponseEntity<List<ProductResponse>> getProductsOrderByPriceDesc() {
+        return ResponseEntity.ok(
+                productRepository.findAllByOrderByPriceDesc().stream()
+                        .map(ProductResponse::from)
+                        .toList()
+        );
     }
 
     @GetMapping("/order-by-stock")
-    public ResponseEntity<List<Product>> getProductsOrderByStockDesc() {
-        return ResponseEntity.ok(productRepository.findAllByOrderByStockDesc());
+    public ResponseEntity<List<ProductResponse>> getProductsOrderByStockDesc() {
+        return ResponseEntity.ok(
+                productRepository.findAllByOrderByStockDesc().stream()
+                        .map(ProductResponse::from)
+                        .toList()
+        );
+    }
+
+    @GetMapping("/filter-by-username/{userId}")
+    public ResponseEntity<List<ProductResponse>> getProductsBySpecificOwner(@PathVariable Long userId) {
+        return ResponseEntity.ok(
+                productRepository.findByOwner(userId).stream()
+                        .map(ProductResponse::from)
+                        .toList()
+        );
+    }
+
+    @GetMapping("/by-category/{category}")
+    public ResponseEntity<List<ProductResponse>> getProductsByCategory(@PathVariable String category) {
+        return ResponseEntity.ok(productRepository.findByCategory(category).stream()
+                        .map(ProductResponse::from)
+                        .toList());
     }
 }

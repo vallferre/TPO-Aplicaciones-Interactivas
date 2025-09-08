@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.uade.tpo.marketplace.entity.Product;
+import com.uade.tpo.marketplace.entity.dto.ProductResponse;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
@@ -24,7 +25,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // O por múltiples descripciones
     @Query("SELECT p FROM Product p JOIN p.categories c WHERE LOWER(c.description) IN :descriptions")
-    List<Product> findByCategoryDescriptions(@Param("descriptions") List<String> descriptionsLower);
+    List<ProductResponse> findByCategoryDescriptions(@Param("descriptions") List<String> descriptionsLower);
 
     //Búsquedas por precio (no hace falta LOWER porque son números)
     List<Product> findByPriceGreaterThan(double price);

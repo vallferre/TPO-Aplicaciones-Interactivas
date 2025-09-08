@@ -55,4 +55,13 @@ public class CategoriesController {
         Category result = categoryService.createCategory(categoryRequest.getDescription());
         return ResponseEntity.created(URI.create("/categories/" + result.getId())).body(result);
     }
+
+    @GetMapping({"/by-description/{description}"})
+    public ResponseEntity<Category> getCategoryByDescription(@PathVariable String description) {
+        Optional<Category> result = categoryService.getCategoryByDescription(description);
+        if (result.isPresent())
+            return ResponseEntity.ok(result.get());
+
+        return ResponseEntity.noContent().build();
+    }
 }
