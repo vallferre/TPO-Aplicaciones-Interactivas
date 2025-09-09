@@ -3,6 +3,8 @@ package com.uade.tpo.marketplace.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,7 +34,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByPriceLessThan(double price);
 
     //Búsquedas por stock (numérico, sin LOWER)
-    List<Product> findByStockGreaterThan(int stock);
+    Page<Product> findByStockGreaterThan(int stock, PageRequest pageable);
 
     // Buscar productos agotados (stock = 0) (sin cambios)
     @Query("SELECT p FROM Product p WHERE p.stock = 0")
@@ -46,6 +48,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByOrderByPriceAsc();
     List<Product> findAllByOrderByPriceDesc();
     List<Product> findAllByOrderByStockDesc();
+
+    // Solo devuelve productos con stock > 0, ordenados desc
+    List<Product> findByStockGreaterThanOrderByStockDesc(int stock);
+
 
     //Combinaciones personalizadas
     @Query("SELECT p FROM Product p JOIN p.categories c WHERE LOWER(c.description) = LOWER(:categoryName) AND p.price < :price")

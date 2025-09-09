@@ -175,7 +175,7 @@ public class ProductsController {
     @GetMapping("/order-by-stock")
     public ResponseEntity<List<ProductResponse>> getProductsOrderByStockDesc() {
         return ResponseEntity.ok(
-                productRepository.findAllByOrderByStockDesc().stream()
+                productRepository.findByStockGreaterThanOrderByStockDesc(0).stream()
                         .map(ProductResponse::from)
                         .toList()
         );
