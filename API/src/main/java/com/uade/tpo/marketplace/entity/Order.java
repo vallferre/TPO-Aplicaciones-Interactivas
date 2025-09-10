@@ -30,8 +30,12 @@ public class Order {
     @JoinColumn(name = "user_id", nullable = false) //es la foreign key de la tabla
     private User user;
 
+    @Column(nullable = false)
+    private double totalAmount = 0.0;
+
     //lista de items de la orden
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(nullable = false)
     private List<OrderItem> items = new ArrayList<>();
 
 }

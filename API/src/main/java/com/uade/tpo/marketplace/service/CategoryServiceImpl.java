@@ -25,10 +25,18 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     public Category createCategory(String description) throws CategoryDuplicateException {
-        List<Category> categories = categoryRepository.findByDescription(description);
-        if (categories.isEmpty())
+        Category category = categoryRepository.findByDescription(description);
+        if (category == null)
             return categoryRepository.save(new Category(description));
-        throw new CategoryDuplicateException();
+        throw new CategoryDuplicateException("La categoría '" + description + "' ya existe.");
+
     }
 
+    @Override
+    public Optional<Category> getCategoryByDescription(String description) {
+        Category category = categoryRepository.findByDescription(description);
+        if (category == null)
+            return Optional.empty();
+        return Optional.of(category);
+    }
 }

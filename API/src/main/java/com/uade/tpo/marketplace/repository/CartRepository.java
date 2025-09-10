@@ -7,9 +7,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.uade.tpo.marketplace.entity.Cart;
-import com.uade.tpo.marketplace.entity.User;
 
 public interface CartRepository extends JpaRepository<Cart, Long>{
-    @Query("SELECT c FROM Cart c WHERE c.user = :user")
-    Optional<Cart> findByUser(@Param("user") User user);
+    @Query("SELECT c FROM Cart c WHERE c.user.id = :userId")
+    Optional<Cart> findByUser(@Param("userId") Long userId);
+
+    @Query("SELECT c FROM Cart c WHERE c.user.id = :userId")
+    Optional<Cart> getCartByUserId(@Param("userId") Long userId);
 }

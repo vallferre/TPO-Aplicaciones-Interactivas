@@ -1,45 +1,57 @@
 package com.uade.tpo.marketplace.exceptions;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    private void writeResponse(HttpServletResponse response, int status, String error, String message, String path) throws IOException {
-        response.setStatus(status);
-        response.setContentType("application/json");
-
+    // Maneja cualquier excepción genérica
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
         Map<String, Object> body = new HashMap<>();
-        body.put("status", status);
-        body.put("error", error);
-        body.put("message", message);
-        body.put("path", path);
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        body.put("error", "Internal Server Error");
+        body.put("message", ex.getMessage()); // 👈 acá vas a ver el detalle del problema
+        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
-        new ObjectMapper().writeValue(response.getOutputStream(), body);
+    // Maneja accesos prohibidos
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.FORBIDDEN.value());
+        body.put("error", "Forbidden");
+        body.put("message", ex.getMessage()); // 👈 Postman ahora te devuelve el detalle
+        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+    }
+
+    // Maneja recursos no encontrados
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.NOT_FOUND.value());
+        body.put("error", "Not Found");
+        body.put("message", ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(CategoryDuplicateException.class)
-    public void handleCategoryDuplicate(CategoryDuplicateException ex, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        writeResponse(response, HttpStatus.BAD_REQUEST.value(), "Bad Request", "La categoria que se intenta agregar está duplicada", request.getRequestURI());
-    }
-
-    @ExceptionHandler(UserDuplicateException.class)
-    public void handleUserDuplicate(CategoryDuplicateException ex, HttpServletRequest request, HttpServletResponse response) throws IOException{
-        writeResponse(response, HttpStatus.BAD_REQUEST.value(), "Bad Request", "El usuario ya existe",request.getRequestURI());
-    }
-
-    @ExceptionHandler(ProductNotFoundException.class)
-    public void handleProdNotFound(CategoryDuplicateException ex, HttpServletRequest request, HttpServletResponse response) throws IOException{
-        writeResponse(response, HttpStatus.BAD_REQUEST.value(), "Bad Request", "El producto no se encuentra",request.getRequestURI());
+    public ResponseEntity<Map<String, Object>> handleCategoryDuplicate(CategoryDuplicateException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("error", "Duplicate category");
+        body.put("message", ex.getMessage());
+        body.put("status", HttpStatus.CONFLICT.value());
+        body.put("timestamp", LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 }

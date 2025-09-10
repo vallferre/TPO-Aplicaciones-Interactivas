@@ -1,17 +1,23 @@
 package com.uade.tpo.marketplace.service;
 
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+
 import com.uade.tpo.marketplace.entity.Order;
-import com.uade.tpo.marketplace.entity.User;
+import com.uade.tpo.marketplace.entity.dto.InvoiceResponse;
+import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
 
 public interface OrderService {
 
-    public List<Order> getOrders();
+    public Page<Order> getOrders(Pageable pageable);
 
-    public Optional<Order> getOrdersById(Long orderId);
+    public Optional<Order> getOrderById(Long orderId) throws AccessDeniedException;
 
-    public Order createOrder(Long count, User user);
+    public Page<Order> getOrdersByUser(Pageable pageable, Long userId) throws AccessDeniedException;
+
+    public InvoiceResponse generateInvoiceForOrder(Long orderId) throws AccessDeniedException;
 
 }

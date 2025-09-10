@@ -1,85 +1,21 @@
 package com.uade.tpo.marketplace.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
 
 import com.uade.tpo.marketplace.entity.Cart;
 import com.uade.tpo.marketplace.entity.CartItem;
 import com.uade.tpo.marketplace.entity.Order;
-import com.uade.tpo.marketplace.entity.OrderItem;
-import com.uade.tpo.marketplace.entity.Product;
-import com.uade.tpo.marketplace.repository.CartRepository;
-import com.uade.tpo.marketplace.repository.OrderRepository;
-import com.uade.tpo.marketplace.repository.ProductRepository;
 
-import jakarta.transaction.Transactional;
+import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
+import com.uade.tpo.marketplace.exceptions.EmptyCartException;
+import com.uade.tpo.marketplace.exceptions.InsufficientStockException;
 
-public class CartService {
-    
-    @Autowired
-    private CartRepository cartRepository;
-
-    @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private OrderRepository orderRepository;
-
-    //agrego al carrito
-    @Transactional
-    public Cart addProductToCart(Long cartId, Long productId, int quantity){
-        Cart cart = cartRepository.findById(cartId).orElseThrow();
-        Product product = productRepository.findById(productId).orElseThrow();
-        
-        if (product.getStock() < quantity){
-            throw new RuntimeException("No hay stock suficiente");
-        }
-        cart.addProduct(product, quantity);
-        return cartRepository.save(cart);
-    }
-
-    //elimino producto del carrito
-    @Transactional
-    public Cart removeProductFromCart(Long cartId, Long productId){
-        Cart cart = cartRepository.findById(cartId).orElseThrow();
-        Product product = productRepository.findById(productId).orElseThrow();
-
-        cart.removeProduct(product);
-        return cartRepository.save(cart);
-    }
-
-    //convierto carrito en orden y descuento del stock
-    @Transactional
-    public Order checkout(Long cartId){
-        Cart cart = cartRepository.findById(cartId).orElseThrow();
-
-        Order order = new Order();
-        order.setUser(cart.getUser());
-
-        for(CartItem cartItem : cart.getItems()){
-            Product product = cartItem.getProduct();
-
-            //verifico stock
-            if(product.getStock() < cartItem.getQuantity()){
-                throw new RuntimeException("No hay stock suficiente para el producto: " + product.getDescription());
-        }
-
-        //descontar stock
-        product.setStock(product.getStock() - cartItem.getQuantity());
-        productRepository.save(product);
-
-        //crear orderItem
-        OrderItem orderItem = new OrderItem();
-        orderItem.setOrder(order);
-        orderItem.setProduct(product);
-        orderItem.setQuantity(cartItem.getQuantity());
-        orderItem.setPriceAtPurchase(cartItem.getPriceAtAddTime());
-
-        order.getItems().add(orderItem);
-        }
-        cart.getItems().clear(); //vaciar carrito
-        cartRepository.save(cart); //guardar carrito vacio
-
-        return orderRepository.save(order); //guardar y retornar orden
-    }
-
+public interface CartService {
+    public Cart addProductToCart(Long userId, String productName, int quantity) throws AccessDeniedException;
+    public Cart removeProductFromCart(String productName, Long userId) throws AccessDeniedException;
+    public List<CartItem> getCartItems(Long userId) throws AccessDeniedException;
+    public void clearCart(Long userId) throws AccessDeniedException;
+    public Order checkout(Long userId) throws AccessDeniedException, InsufficientStockException, EmptyCartException;
+    public double getCartTotal(Long userId) throws AccessDeniedException;
+    public Cart get(Long userId) throws AccessDeniedException;
 }

@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.entity.dto.UserRequest;
+import com.uade.tpo.marketplace.entity.dto.UserResponse;
 import com.uade.tpo.marketplace.exceptions.UserDuplicateException;
 import com.uade.tpo.marketplace.service.UserService;
 
@@ -27,8 +29,8 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/email/{userEmail}")
-    public ResponseEntity<Object> getUserByEmail(@PathVariable("userEmail") String userEmail) {
-        Optional<User> result = userService.getUserByEmail(userEmail);
+    public ResponseEntity<Object> getUserByEmail(@PathVariable("userEmail") String userEmail, @AuthenticationPrincipal User requester) {
+        Optional<UserResponse> result = userService.getUserByEmail(userEmail, requester);
         if (result.isPresent()) {
             return ResponseEntity.ok(result.get());  // devuelve el usuario directamente
         } else {
@@ -38,8 +40,8 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<Object> getUserById(@PathVariable("userId") Long userId) {
-        Optional<User> result = userService.getUserById(userId);
+    public ResponseEntity<Object> getUserById(@PathVariable("userId") Long userId, @AuthenticationPrincipal User requester) {
+        Optional<UserResponse> result = userService.getUserById(userId, requester);
         if (result.isPresent()) {
             return ResponseEntity.ok(result.get());  // devuelve el usuario directamente
         } else {
@@ -71,4 +73,15 @@ public class UserController {
                 .body(Map.of("message", "User successfully created", "user", result));
     }
 
+    @GetMapping("/specific-username/{username}")
+    public ResponseEntity<Object> getSpecificUsername(@PathVariable String username, @AuthenticationPrincipal User requester) {
+        Optional<UserResponse> result = userService.getUserByUsername(username, requester);
+        if (result.isPresent()) {
+            return ResponseEntity.ok(result.get());  // devuelve el usuario directamente
+        } else {
+            return ResponseEntity.status(404)
+                    .body(Map.of("error", "User not found")); // mensaje de error si no existe
+        }
+    }
+    
 }

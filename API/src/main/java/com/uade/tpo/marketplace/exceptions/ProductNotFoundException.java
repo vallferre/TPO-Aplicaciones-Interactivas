@@ -5,4 +5,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "El producto no existe")
 public class ProductNotFoundException extends Exception {
+
+    public ProductNotFoundException() {
+        super("El producto no existe");
+    }
 }

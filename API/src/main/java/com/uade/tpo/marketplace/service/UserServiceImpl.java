@@ -1,12 +1,16 @@
 package com.uade.tpo.marketplace.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.User;
+import com.uade.tpo.marketplace.entity.dto.UserResponse;
 import com.uade.tpo.marketplace.exceptions.UserDuplicateException;
+import com.uade.tpo.marketplace.repository.ProductRepository;
 import com.uade.tpo.marketplace.repository.UserRepository;
 
 @Service
@@ -15,19 +19,55 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ProductRepository productRepository;
+
     @Override
-    public Optional<User> getUserById(Long userId) {
-        return userRepository.findById(userId);
+    public Optional<UserResponse> getUserById(Long userId, User requester) {
+        boolean isAdmin = requester.getAuthorities().stream()
+        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        return userRepository.findById(userId)
+            .map(user -> {
+                List<Product> products = productRepository.findByOwner(userId);
+                if (requester.getId().equals(userId) || isAdmin) {
+                    return UserResponse.full(user, products);
+                } else {
+                    return UserResponse.limited(user, products);
+                }
+            });
     }
 
     @Override
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public Optional<UserResponse> getUserByEmail(String email, User requester) {
+        boolean isAdmin = requester.getAuthorities().stream()
+        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        return userRepository.findByEmail(email)
+            .map(user -> {
+                List<Product> products = productRepository.findByOwner(user.getId());
+                if (requester.getId().equals(user.getId()) || isAdmin) {
+                    return UserResponse.full(user, products);
+                } else {
+                    return UserResponse.limited(user, products);
+                }
+            });
     }
 
     @Override
-    public Optional<User> getUserByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public Optional<UserResponse> getUserByUsername(String username, User requester) {
+        boolean isAdmin = requester.getAuthorities().stream()
+        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        return userRepository.findByUsername(username)
+            .map(user -> {
+                List<Product> products = productRepository.findByOwner(user.getId());
+                if (requester.getId().equals(user.getId()) || isAdmin) {
+                    return UserResponse.full(user, products);
+                } else {
+                    return UserResponse.limited(user, products);
+                }
+            });
     }
 
     @Override
@@ -44,7 +84,11 @@ public class UserServiceImpl implements UserService {
         user.setSurname(surname);
         user.setUsername(username);
         user.setPassword(password);
-        user.setRole(User.RoleName.USER); // default value
+        if (email.toLowerCase().trim().endsWith("@colecxion.com")) {
+            user.setRole(User.RoleName.ADMIN); // if colecxion.com, admin
+        } else {
+            user.setRole(User.RoleName.USER);  // default value
+        }
 
         return userRepository.save(user);
     }
@@ -76,5 +120,4 @@ public class UserServiceImpl implements UserService {
         }
         return false;
     }
-
 }
