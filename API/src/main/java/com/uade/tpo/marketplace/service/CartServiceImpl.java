@@ -114,7 +114,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart removeProductFromCart(String productName, Long userId) throws AccessDeniedException {
         User currentUser = getCurrentUser();
-        if (!currentUser.getId().equals(userId) && !isAdmin(currentUser)) {
+        if (!currentUser.getId().equals(userId)) {
             throw new AccessDeniedException();
         }
 
@@ -159,7 +159,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public void clearCart(Long userId) throws AccessDeniedException {
         User currentUser = getCurrentUser();
-        if (!currentUser.getId().equals(userId) && !isAdmin(currentUser)) {
+        if (!currentUser.getId().equals(userId)) {
             throw new AccessDeniedException();
         }
 
@@ -178,7 +178,7 @@ public class CartServiceImpl implements CartService {
     public Order checkout(Long userId) throws AccessDeniedException, InsufficientStockException, EmptyCartException {
         
         User currentUser = getCurrentUser();
-        if (!currentUser.getId().equals(userId) && !isAdmin(currentUser)) {
+        if (!currentUser.getId().equals(userId)) {
             throw new AccessDeniedException();
         }
 

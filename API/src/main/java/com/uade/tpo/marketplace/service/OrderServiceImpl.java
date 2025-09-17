@@ -52,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<Order> getOrdersByUser(Pageable pageable, Long userId) throws AccessDeniedException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) auth.getPrincipal(); // asumimos que tu UserDetailsService devuelve tu entidad User
+        User currentUser = (User) auth.getPrincipal(); 
 
         // Validar permisos
         if (!currentUser.getId().equals(userId) && !currentUser.getRole().equals(User.RoleName.ADMIN)) {

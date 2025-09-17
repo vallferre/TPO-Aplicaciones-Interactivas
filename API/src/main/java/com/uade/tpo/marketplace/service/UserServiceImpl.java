@@ -30,8 +30,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(userId)
             .map(user -> {
                 List<Product> products = productRepository.findByOwner(userId);
-                if (requester.getId().equals(userId) || isAdmin) {
+                if (requester.getId().equals(userId) || !isAdmin) {
                     return UserResponse.full(user, products);
+                } else if (user.getAuthorities().stream()
+                        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+                    throw new RuntimeException("No se puede acceder a la información de un usuario administrador.");
                 } else {
                     return UserResponse.limited(user, products);
                 }
@@ -46,8 +49,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email)
             .map(user -> {
                 List<Product> products = productRepository.findByOwner(user.getId());
-                if (requester.getId().equals(user.getId()) || isAdmin) {
+                if (requester.getId().equals(user.getId()) || !isAdmin) {
                     return UserResponse.full(user, products);
+                } else if (user.getAuthorities().stream()
+                        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+                    throw new RuntimeException("No se puede acceder a la información de un usuario administrador.");
                 } else {
                     return UserResponse.limited(user, products);
                 }
@@ -62,8 +68,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByUsername(username)
             .map(user -> {
                 List<Product> products = productRepository.findByOwner(user.getId());
-                if (requester.getId().equals(user.getId()) || isAdmin) {
+                if (requester.getId().equals(user.getId()) || !isAdmin) {
                     return UserResponse.full(user, products);
+                } else if (user.getAuthorities().stream()
+                        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+                    throw new RuntimeException("No se puede acceder a la información de un usuario administrador.");
                 } else {
                     return UserResponse.limited(user, products);
                 }

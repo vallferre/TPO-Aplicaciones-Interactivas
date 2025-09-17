@@ -54,6 +54,11 @@ public class ProductServiceImpl implements ProductService {
             throw new ProductDuplicateException();
         }
 
+        if (currentUser.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new RuntimeException("Un usuario administrador no puede crear productos.");
+        }
+
         // Asigna propietario
         product.setOwner(currentUser);
 
@@ -106,15 +111,14 @@ public class ProductServiceImpl implements ProductService {
                 throw new IllegalArgumentException("El precio debe ser mayor o igual a 1");
             }
         }
-
-        /*
+        
         //aplicar descuento si viene en el body
-        if (productRequest.getDiscountPercentage() != null && productRequest.getDiscountPercentage() > 0) {
-            double discount = productRequest.getDiscountPercentage();
+        if (productRequest.getDiscount() != null && productRequest.getDiscount() > 0 && productRequest.getDiscount() <= 100) {
+            double discount = productRequest.getDiscount();
             double newPrice = product.getPrice() - (product.getPrice() * discount / 100);
             product.setPrice(newPrice);
         }
- */
+ 
         if (productRequest.getImages() != null) {
             product.setImages(productRequest.getImages());
         }
