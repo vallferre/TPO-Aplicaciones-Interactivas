@@ -98,7 +98,7 @@ public class ProductServiceImpl implements ProductService {
         }
         if (productRequest.getStock() != null) {
             if (productRequest.getStock() >= 0) {
-                product.setStock(productRequest.getStock());
+                product.setStock(productRequest.getStock() + product.getStock());
             } else {
                 throw new IllegalArgumentException("El stock no puede ser negativo");
             }
