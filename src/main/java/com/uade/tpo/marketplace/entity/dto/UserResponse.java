@@ -36,6 +36,8 @@ public class UserResponse {
                     p.getDescription(),
                     p.getStock(),
                     p.getPrice(),
+                    p.getDiscountPercentage(),
+                    p.getFinalPrice(),
                     p.getOwner().getUsername(),
                     p.getCategories().stream()
                                      .map(Category::getDescription) // convertir categorías
@@ -59,6 +61,8 @@ public class UserResponse {
                     p.getDescription(),
                     p.getStock(),
                     p.getPrice(),
+                    p.getDiscountPercentage(),
+                    p.getFinalPrice(),
                     p.getOwner().getUsername(),
                     p.getCategories().stream()
                                      .map(Category::getDescription) // convertir categorías

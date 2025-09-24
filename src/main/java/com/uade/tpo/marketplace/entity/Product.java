@@ -17,7 +17,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Transient;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import lombok.Data;
 
 @Data
@@ -38,12 +39,16 @@ public class Product {
 
     @Column
     private double price;
-    
-    @Transient
-    private Double discountPercentage;
-    
 
-    @ManyToMany //cambié esto
+    // Nuevo: descuento persistido
+    @Column(name = "discount_percentage")
+    private Double discountPercentage = 0.0;
+
+    // Nuevo: precio final persistido
+    @Column(name = "final_price")
+    private Double finalPrice;
+
+    @ManyToMany
     @JoinTable(
         name = "product_category",
         joinColumns = @JoinColumn(name = "product_id"),
@@ -53,9 +58,7 @@ public class Product {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "orders"}) 
-    //hibernateLazyInitializer y handler → Son campos internos que Hibernate agrega a los proxys. Jackson no los necesita y muchas veces los serializa por error. 
-    //orders → Es tu colección lazy que estaba causando el error de inicialización.
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "orders"})
     private User owner;
 
     @ElementCollection
@@ -67,4 +70,18 @@ public class Product {
     @CollectionTable(name = "product_videos", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "video_url")
     private List<String> videos = new ArrayList<>();
+
+    @PrePersist
+    @PreUpdate
+    public void calculateFinalPrice() {
+        double basePrice = (this.price != 0) ? this.price : 0.0;
+        double d = (this.discountPercentage == null) ? 0.0 : this.discountPercentage;
+
+        // Normalizo a rango [0,100]
+        if (d < 0) d = 0;
+        if (d > 100) d = 100;
+
+        this.discountPercentage = d;
+        this.finalPrice = basePrice - (basePrice * d / 100.0);
+    }
 }

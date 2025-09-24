@@ -90,8 +90,12 @@ public class ProductsController {
         Product newProduct = new Product();
         newProduct.setName(productRequest.getName());
         newProduct.setDescription(productRequest.getDescription());
-        newProduct.setStock(productRequest.getStock());
-        newProduct.setPrice(productRequest.getPrice());
+        newProduct.setStock(productRequest.getStock() != null ? productRequest.getStock() : 0);
+        newProduct.setPrice(productRequest.getPrice() != null ? productRequest.getPrice() : 0.0);
+
+        // NUEVO: seteo del porcentaje de descuento (acepta discountPercentage o discount)
+        newProduct.setDiscountPercentage(productRequest.getEffectiveDiscountPercentage());
+
         newProduct.setImages(productRequest.getImages() != null ? productRequest.getImages() : new ArrayList<>());
         newProduct.setVideos(productRequest.getVideos() != null ? productRequest.getVideos() : new ArrayList<>());
         newProduct.setCategories(categories);
@@ -143,20 +147,20 @@ public class ProductsController {
     @GetMapping("/cheaper-than")
     public ResponseEntity<List<ProductResponse>> getProductsCheaperThan(@RequestParam double price) {
         return ResponseEntity.ok(
-                productRepository.findByPriceLessThan(price).stream()
-                        .map(ProductResponse::from)
-                        .toList()
-        );
-    }
+                productRepository.findByFinalPriceLessThan(price).stream()
+                    .map(ProductResponse::from)
+                    .toList()
+    );
+}
 
     @GetMapping("/expensive-than")
     public ResponseEntity<List<ProductResponse>> getProductsMoreExpensiveThan(@RequestParam double price) {
         return ResponseEntity.ok(
-                productRepository.findByPriceGreaterThan(price).stream()
-                        .map(ProductResponse::from)
-                        .toList()
-        );
-    }
+                productRepository.findByFinalPriceGreaterThan(price).stream()
+                    .map(ProductResponse::from)
+                    .toList()
+    );
+}
 
     @GetMapping("/search")
     public ResponseEntity<List<ProductResponse>> searchProducts(@RequestParam String keyword) {
@@ -170,20 +174,20 @@ public class ProductsController {
     @GetMapping("/order-by-price-asc")
     public ResponseEntity<List<ProductResponse>> getProductsOrderByPriceAsc() {
         return ResponseEntity.ok(
-                productRepository.findAllByOrderByPriceAsc().stream()
-                        .map(ProductResponse::from)
-                        .toList()
-        );
-    }
+                productRepository.findAllByOrderByFinalPriceAsc().stream()
+                    .map(ProductResponse::from)
+                    .toList()
+    );
+}
 
     @GetMapping("/order-by-price-desc")
     public ResponseEntity<List<ProductResponse>> getProductsOrderByPriceDesc() {
         return ResponseEntity.ok(
-                productRepository.findAllByOrderByPriceDesc().stream()
-                        .map(ProductResponse::from)
-                        .toList()
-        );
-    }
+                productRepository.findAllByOrderByFinalPriceDesc().stream()
+                    .map(ProductResponse::from)
+                    .toList()
+    );
+}
 
     @GetMapping("/order-by-stock")
     public ResponseEntity<List<ProductResponse>> getProductsOrderByStockDesc() {

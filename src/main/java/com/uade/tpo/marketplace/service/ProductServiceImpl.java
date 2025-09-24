@@ -44,7 +44,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product createProduct(Product product, User currentUser) throws ProductDuplicateException {
-        // Verifica duplicado considerando owner, name y description
         boolean exists = productRepository.existsByOwnerIdAndNameAndDescription(
                 currentUser.getId(),
                 product.getName(),
@@ -59,9 +58,9 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException("Un usuario administrador no puede crear productos.");
         }
 
-        // Asigna propietario
         product.setOwner(currentUser);
 
+        // finalPrice se calculará por @PrePersist
         return productRepository.save(product);
     }
 
@@ -89,7 +88,6 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException("No tenés permiso para modificar este producto");
         }
 
-        // Actualizar campos si vienen en el body
         if (productRequest.getName() != null) {
             product.setName(productRequest.getName());
         }
@@ -103,7 +101,6 @@ public class ProductServiceImpl implements ProductService {
                 throw new IllegalArgumentException("El stock no puede ser negativo");
             }
         }
-
         if (productRequest.getPrice() != null) {
             if (productRequest.getPrice() >= 1) {
                 product.setPrice(productRequest.getPrice());
@@ -111,39 +108,38 @@ public class ProductServiceImpl implements ProductService {
                 throw new IllegalArgumentException("El precio debe ser mayor o igual a 1");
             }
         }
-        
-        //aplicar descuento si viene en el body
-        if (productRequest.getDiscount() != null && productRequest.getDiscount() > 0 && productRequest.getDiscount() <= 100) {
-            double discount = productRequest.getDiscount();
-            double newPrice = product.getPrice() - (product.getPrice() * discount / 100);
-            product.setPrice(newPrice);
+
+        // Nuevo: aplicar/actualizar porcentaje de descuento (persistido)
+        Double reqDiscount = productRequest.getEffectiveDiscountPercentage();
+        if (reqDiscount != null) {
+            if (reqDiscount < 0 || reqDiscount > 100) {
+                throw new IllegalArgumentException("El descuento debe estar entre 0 y 100");
+            }
+            product.setDiscountPercentage(reqDiscount);
+            // finalPrice se recalcula por @PreUpdate
         }
- 
+
         if (productRequest.getImages() != null) {
             product.setImages(productRequest.getImages());
         }
         if (productRequest.getVideos() != null) {
             product.setVideos(productRequest.getVideos());
         }
-        
+
         if (productRequest.getCategories() != null && !productRequest.getCategories().isEmpty()) {
             List<String> duplicadas = new ArrayList<>();
-            if (productRequest.getCategories() != null && !productRequest.getCategories().isEmpty()) {
-                for (String categoriaNombre : productRequest.getCategories()) {
-                    Category foundCategory = categoryRepository.findByDescription(categoriaNombre);
-
-                    if (foundCategory != null) {
-                        if (!product.getCategories().contains(foundCategory)) {
-                            product.getCategories().add(foundCategory);
-                            productRequest.getCategories().remove(foundCategory.getDescription());
-                        } else {
-                            duplicadas.add(categoriaNombre); // guardamos la duplicada
-                        }
-                    }  
+            for (String categoriaNombre : productRequest.getCategories()) {
+                Category foundCategory = categoryRepository.findByDescription(categoriaNombre);
+                if (foundCategory != null) {
+                    if (!product.getCategories().contains(foundCategory)) {
+                        product.getCategories().add(foundCategory);
+                    } else {
+                        duplicadas.add(categoriaNombre);
+                    }
                 }
-                if (productRequest.getCategories().isEmpty()){
-                    throw new IllegalArgumentException("El producto " + product.getName() + " ya contiene la categoria " + duplicadas);
-                }
+            }
+            if (!duplicadas.isEmpty()) {
+                throw new IllegalArgumentException("El producto " + product.getName() + " ya contiene la(s) categoría(s) " + duplicadas);
             }
         }
 
@@ -158,7 +154,7 @@ public class ProductServiceImpl implements ProductService {
         if (!product.getOwner().getId().equals(currentUser.getId())) {
             throw new RuntimeException("No tenés permiso para modificar este producto");
         }
-        
+
         if (productRequest.getCategories() != null && !productRequest.getCategories().isEmpty()) {
             List<String> categoryNames = product.getCategories()
                                     .stream()
@@ -185,4 +181,3 @@ public class ProductServiceImpl implements ProductService {
                             .toList();
     }
 }
-
