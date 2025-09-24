@@ -29,14 +29,14 @@ public class FavoriteController {
     @PostMapping
     public ResponseEntity<FavoriteResponse> addFavorite(@PathVariable Long userId,
                                             @RequestBody FavoriteRequest request) throws AccessDeniedException {
-        FavoriteResponse response = favoriteService.addFavoriteProduct(userId, request.getProductName());
+        FavoriteResponse response = favoriteService.addFavoriteProduct(userId, request.getProductId());
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping
     public ResponseEntity<Void> removeFavorite(@PathVariable Long userId,
                                                @RequestBody FavoriteRequest request) throws AccessDeniedException {
-        favoriteService.removeFavoriteProduct(userId, request.getProductName());
+        favoriteService.removeFavoriteProduct(userId, request.getProductId());
         return ResponseEntity.ok().build();
     }
 

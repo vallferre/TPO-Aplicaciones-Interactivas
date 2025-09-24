@@ -7,7 +7,7 @@ import com.uade.tpo.marketplace.entity.dto.FavoriteResponse;
 import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
 
 public interface FavoriteService {
-    FavoriteResponse addFavoriteProduct(Long userId, String productName) throws AccessDeniedException;
-    void removeFavoriteProduct(Long userId, String productName) throws AccessDeniedException;
+    FavoriteResponse addFavoriteProduct(Long userId, long  productId) throws AccessDeniedException;
+    void removeFavoriteProduct(Long userId, long  productId) throws AccessDeniedException;
     Set<Product> getFavoriteProducts(Long userId) throws AccessDeniedException;
 }

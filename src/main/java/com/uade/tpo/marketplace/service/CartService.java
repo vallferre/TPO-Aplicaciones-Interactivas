@@ -11,8 +11,8 @@ import com.uade.tpo.marketplace.exceptions.EmptyCartException;
 import com.uade.tpo.marketplace.exceptions.InsufficientStockException;
 
 public interface CartService {
-    public Cart addProductToCart(Long userId, String productName, int quantity) throws AccessDeniedException;
-    public Cart removeProductFromCart(String productName, Long userId) throws AccessDeniedException;
+    public Cart addProductToCart(Long userId, long  productId, int quantity) throws AccessDeniedException;
+    public Cart removeProductFromCart(long  productId, Long userId) throws AccessDeniedException;
     public List<CartItem> getCartItems(Long userId) throws AccessDeniedException;
     public void clearCart(Long userId) throws AccessDeniedException;
     public Order checkout(Long userId) throws AccessDeniedException, InsufficientStockException, EmptyCartException;

@@ -48,7 +48,7 @@ public class CartServiceImpl implements CartService {
     // 🔹 Agregar producto al carrito
     @Transactional
     @Override
-    public Cart addProductToCart(Long userId, String productName, int quantity) throws AccessDeniedException {
+    public Cart addProductToCart(Long userId, long  productId, int quantity) throws AccessDeniedException {
         User currentUser = getCurrentUser();
 
         if (!currentUser.getId().equals(userId)) {
@@ -58,8 +58,8 @@ public class CartServiceImpl implements CartService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + userId));
 
-        Product product = productRepository.findByName(productName)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado con nombre: " + productName));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + productId));
 
         if (product.getOwner().getId().equals(userId)) {
             throw new RuntimeException("No se puede agregar al carrito un producto propio.");
@@ -112,7 +112,7 @@ public class CartServiceImpl implements CartService {
     // 🔹 Remover producto del carrito
     @Transactional
     @Override
-    public Cart removeProductFromCart(String productName, Long userId) throws AccessDeniedException {
+    public Cart removeProductFromCart(long  productId, Long userId) throws AccessDeniedException {
         User currentUser = getCurrentUser();
         if (!currentUser.getId().equals(userId)) {
             throw new AccessDeniedException();
@@ -122,7 +122,7 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
 
         CartItem itemToRemove = cart.getItems().stream()
-                .filter(item -> item.getProduct().getName().equals(productName))
+                .filter(item -> item.getProduct().getId().equals(productId))
                 .findFirst()
                 .orElse(null);
 

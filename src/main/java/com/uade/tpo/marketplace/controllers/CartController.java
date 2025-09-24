@@ -56,7 +56,7 @@ public class CartController {
             @RequestParam(defaultValue = "1") int quantity) {
 
         try {
-            Cart updatedCart = cartService.addProductToCart(userId, request.getProductName(), quantity);
+            Cart updatedCart = cartService.addProductToCart(userId, request.getProductId(), quantity);
             CartResponse response = new CartResponse(updatedCart, updatedCart.getItems());
             return ResponseEntity.ok(response);
         } catch (AccessDeniedException e) {
@@ -73,7 +73,7 @@ public class CartController {
             @RequestBody CartRequest request) {
 
         try {
-            Cart updatedCart = cartService.removeProductFromCart(request.getProductName(), userId);
+            Cart updatedCart = cartService.removeProductFromCart(request.getProductId(), userId);
             CartResponse response = new CartResponse(updatedCart, updatedCart.getItems());
             return ResponseEntity.ok(response);
         } catch (AccessDeniedException e) {
