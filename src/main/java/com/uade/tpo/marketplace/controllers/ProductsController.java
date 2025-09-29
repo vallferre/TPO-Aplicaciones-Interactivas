@@ -93,10 +93,10 @@ public class ProductsController {
         newProduct.setStock(productRequest.getStock() != null ? productRequest.getStock() : 0);
         newProduct.setPrice(productRequest.getPrice() != null ? productRequest.getPrice() : 0.0);
 
-        // NUEVO: seteo del porcentaje de descuento (acepta discountPercentage o discount)
+        // porcentaje de descuento
         newProduct.setDiscountPercentage(productRequest.getEffectiveDiscountPercentage());
 
-        newProduct.setImages(productRequest.getImages() != null ? productRequest.getImages() : new ArrayList<>());
+        // videos
         newProduct.setVideos(productRequest.getVideos() != null ? productRequest.getVideos() : new ArrayList<>());
         newProduct.setCategories(categories);
 

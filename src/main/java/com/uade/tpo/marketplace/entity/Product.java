@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -17,12 +18,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.CascadeType;
 import lombok.Data;
 
 @Data
 @Entity
+@Table(name = "Product")
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,11 +45,11 @@ public class Product {
     @Column
     private double price;
 
-    // Nuevo: descuento persistido
+    // Descuento persistido
     @Column(name = "discount_percentage")
     private Double discountPercentage = 0.0;
 
-    // Nuevo: precio final persistido
+    // Precio final persistido
     @Column(name = "final_price")
     private Double finalPrice;
 
@@ -61,11 +66,12 @@ public class Product {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "orders"})
     private User owner;
 
-    @ElementCollection
-    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
-    @Column(name = "image_url")
-    private List<String> images = new ArrayList<>();
+    // NUEVO: relación a imágenes por archivo
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ProductImage> fileImages = new ArrayList<>();
 
+    // VIDEOS se mantienen
     @ElementCollection
     @CollectionTable(name = "product_videos", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "video_url")
@@ -77,7 +83,6 @@ public class Product {
         double basePrice = (this.price != 0) ? this.price : 0.0;
         double d = (this.discountPercentage == null) ? 0.0 : this.discountPercentage;
 
-        // Normalizo a rango [0,100]
         if (d < 0) d = 0;
         if (d > 100) d = 100;
 

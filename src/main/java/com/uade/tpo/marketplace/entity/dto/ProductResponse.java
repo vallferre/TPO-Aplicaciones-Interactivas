@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.uade.tpo.marketplace.entity.Category;
 import com.uade.tpo.marketplace.entity.Product;
+import com.uade.tpo.marketplace.entity.ProductImage;
 
 import lombok.Data;
 
@@ -18,7 +19,7 @@ public class ProductResponse {
     private Double finalPrice;       // precio con descuento
     private String ownerName;
     private List<String> categories;
-    private List<String> images;
+    private List<Long> imageIds;     // <<--- reemplaza URLs
     private List<String> videos;
 
     public ProductResponse(Long id,
@@ -30,7 +31,7 @@ public class ProductResponse {
                            Double finalPrice,
                            String ownerName,
                            List<String> categories,
-                           List<String> images,
+                           List<Long> imageIds,
                            List<String> videos) {
         this.id = id;
         this.name = name;
@@ -41,7 +42,7 @@ public class ProductResponse {
         this.finalPrice = finalPrice;
         this.ownerName = ownerName;
         this.categories = categories;
-        this.images = images;
+        this.imageIds = imageIds;
         this.videos = videos;
     }
 
@@ -58,7 +59,8 @@ public class ProductResponse {
             product.getCategories().stream()
                     .map(Category::getDescription)
                     .toList(),
-            product.getImages(),
+            product.getFileImages() == null ? List.of()
+                : product.getFileImages().stream().map(ProductImage::getId).toList(),
             product.getVideos()
         );
     }

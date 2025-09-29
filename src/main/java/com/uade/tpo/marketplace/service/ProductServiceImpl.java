@@ -109,19 +109,14 @@ public class ProductServiceImpl implements ProductService {
             }
         }
 
-        // Nuevo: aplicar/actualizar porcentaje de descuento (persistido)
         Double reqDiscount = productRequest.getEffectiveDiscountPercentage();
         if (reqDiscount != null) {
             if (reqDiscount < 0 || reqDiscount > 100) {
                 throw new IllegalArgumentException("El descuento debe estar entre 0 y 100");
             }
             product.setDiscountPercentage(reqDiscount);
-            // finalPrice se recalcula por @PreUpdate
         }
 
-        if (productRequest.getImages() != null) {
-            product.setImages(productRequest.getImages());
-        }
         if (productRequest.getVideos() != null) {
             product.setVideos(productRequest.getVideos());
         }

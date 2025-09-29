@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.uade.tpo.marketplace.entity.Category;
-import com.uade.tpo.marketplace.entity.Order;
 import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.User;
 
@@ -18,7 +16,7 @@ public class UserResponse {
     private String name;
     private String surname;
     private String username;
-    private List<Order> orders;
+    private List<?> orders;
     private List<ProductResponse> products;
     private Set<Product> favoriteProducts;
 
@@ -30,21 +28,7 @@ public class UserResponse {
         res.username = user.getUsername();
         res.orders = user.getOrders();
         res.products = products.stream()
-            .map(p -> new ProductResponse(
-                    p.getId(),
-                    p.getName(),
-                    p.getDescription(),
-                    p.getStock(),
-                    p.getPrice(),
-                    p.getDiscountPercentage(),
-                    p.getFinalPrice(),
-                    p.getOwner().getUsername(),
-                    p.getCategories().stream()
-                                     .map(Category::getDescription) // convertir categorías
-                                     .toList(),
-                    p.getImages(),
-                    p.getVideos()
-            ))
+            .map(ProductResponse::from)
             .toList();
 
         res.favoriteProducts = user.getFavoriteProducts();
@@ -55,21 +39,7 @@ public class UserResponse {
         UserResponse res = new UserResponse();
         res.username = user.getUsername();
         res.products = products.stream()
-            .map(p -> new ProductResponse(
-                    p.getId(),
-                    p.getName(),
-                    p.getDescription(),
-                    p.getStock(),
-                    p.getPrice(),
-                    p.getDiscountPercentage(),
-                    p.getFinalPrice(),
-                    p.getOwner().getUsername(),
-                    p.getCategories().stream()
-                                     .map(Category::getDescription) // convertir categorías
-                                     .toList(),
-                    p.getImages(),
-                    p.getVideos()
-            ))
+            .map(ProductResponse::from)
             .toList();
 
         return res;

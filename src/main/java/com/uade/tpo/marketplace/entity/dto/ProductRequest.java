@@ -18,7 +18,6 @@ public class ProductRequest {
     private Double discount;
 
     private List<String> categories;
-    private List<String> images;
     private List<String> videos;
 
     public Double getEffectiveDiscountPercentage() {
