@@ -75,6 +75,7 @@ public class CartServiceImpl implements CartService {
         });
 
         // Validar que todos los productos sean del mismo seller
+        /*
         if (!cart.getItems().isEmpty()) {
             boolean sameOwner = cart.getItems().stream()
                     .map(item -> item.getProduct().getOwner().getId())
@@ -84,6 +85,7 @@ public class CartServiceImpl implements CartService {
                 throw new RuntimeException("El carrito solo puede contener productos de un único vendedor.");
             }
         }
+        */
 
         // Agregar o actualizar item
         Optional<CartItem> existingItem = cart.getItems().stream()
