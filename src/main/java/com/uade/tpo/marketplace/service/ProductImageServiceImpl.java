@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.ProductImage;
 import com.uade.tpo.marketplace.entity.User;
+import com.uade.tpo.marketplace.exceptions.InvalidStockException;
 import com.uade.tpo.marketplace.repository.ProductImageRepository;
 import com.uade.tpo.marketplace.repository.ProductRepository;
 
@@ -29,6 +30,10 @@ public class ProductImageServiceImpl implements ProductImageService {
         // Seguridad: solo el dueño del producto puede subir imágenes
         if (!product.getOwner().getId().equals(currentUser.getId())) {
             throw new RuntimeException("No tenés permiso para subir imagenes en este producto");
+        }
+
+        if (product.getStock() < 1) {
+            throw new InvalidStockException("El stock no puede ser negativo");
         }
 
         if (file == null || file.isEmpty()) {

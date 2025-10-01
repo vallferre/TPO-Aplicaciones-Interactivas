@@ -31,7 +31,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // Buscar por categoría (ManyToMany)
     @Query("SELECT p FROM Product p JOIN p.categories c WHERE LOWER(c.description) = LOWER(:categoryName)")
-    List<Product> findByCategory(@Param("categoryName") String categoryName);
+    List<Product> findByCategory(@Param("categoryName") Long categoryName);
+
+    @Query("SELECT p FROM Product p JOIN p.categories c WHERE c.id = :categoryId")
+    List<Product> findByCategoryId(@Param("categoryId") Long categoryId);
 
     // O por múltiples descripciones (dejado tal cual lo tenías)
     @Query("SELECT p FROM Product p JOIN p.categories c WHERE LOWER(c.description) IN :descriptions")

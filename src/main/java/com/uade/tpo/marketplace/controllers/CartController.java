@@ -22,6 +22,7 @@ import com.uade.tpo.marketplace.entity.dto.OrderResponse;
 import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
 import com.uade.tpo.marketplace.exceptions.EmptyCartException;
 import com.uade.tpo.marketplace.exceptions.InsufficientStockException;
+import com.uade.tpo.marketplace.exceptions.ProductNotFoundException;
 import com.uade.tpo.marketplace.service.CartService;
 
 import lombok.RequiredArgsConstructor;
@@ -70,15 +71,13 @@ public class CartController {
     @DeleteMapping("/{userId}/remove")
     public ResponseEntity<CartResponse> removeProductFromCart(
             @PathVariable Long userId,
-            @RequestBody CartRequest request) {
+            @RequestBody CartRequest request) throws ProductNotFoundException {
 
         try {
             Cart updatedCart = cartService.removeProductFromCart(request.getProductId(), userId);
             CartResponse response = new CartResponse(updatedCart, updatedCart.getItems());
             return ResponseEntity.ok(response);
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (RuntimeException e) {
+        } catch (AccessDeniedException | RuntimeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }

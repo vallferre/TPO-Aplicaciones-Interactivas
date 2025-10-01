@@ -19,6 +19,7 @@ import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.entity.dto.UserRequest;
 import com.uade.tpo.marketplace.entity.dto.UserResponse;
 import com.uade.tpo.marketplace.exceptions.UserDuplicateException;
+import com.uade.tpo.marketplace.exceptions.UserNotFoundException;
 import com.uade.tpo.marketplace.service.UserService;
 
 @RestController
@@ -45,8 +46,7 @@ public class UserController {
         if (result.isPresent()) {
             return ResponseEntity.ok(result.get());  // devuelve el usuario directamente
         } else {
-            return ResponseEntity.status(404)
-                    .body(Map.of("error", "User not found")); // mensaje de error si no existe
+            throw new UserNotFoundException(userId);
         }
     }
 

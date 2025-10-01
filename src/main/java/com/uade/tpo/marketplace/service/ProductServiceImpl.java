@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.marketplace.entity.Category;
@@ -14,6 +14,7 @@ import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.entity.dto.ProductRequest;
 import com.uade.tpo.marketplace.entity.dto.ProductResponse;
+import com.uade.tpo.marketplace.exceptions.InvalidStockException;
 import com.uade.tpo.marketplace.exceptions.ProductDuplicateException;
 import com.uade.tpo.marketplace.exceptions.ProductNotFoundException;
 import com.uade.tpo.marketplace.repository.CategoryRepository;
@@ -56,6 +57,10 @@ public class ProductServiceImpl implements ProductService {
         if (currentUser.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
             throw new RuntimeException("Un usuario administrador no puede crear productos.");
+        }
+
+        if (product.getStock() < 1) {
+            throw new InvalidStockException("El stock no puede ser negativo");
         }
 
         product.setOwner(currentUser);
@@ -169,8 +174,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> findByCategory(String category) {
-        return productRepository.findByCategory(category)
+    public List<ProductResponse> findByCategory(Long category) {
+        return productRepository.findByCategoryId(category)
                             .stream()
                             .map(ProductResponse::from)
                             .toList();

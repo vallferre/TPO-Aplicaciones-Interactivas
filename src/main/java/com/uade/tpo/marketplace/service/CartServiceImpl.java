@@ -18,6 +18,7 @@ import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
 import com.uade.tpo.marketplace.exceptions.EmptyCartException;
 import com.uade.tpo.marketplace.exceptions.InsufficientStockException;
+import com.uade.tpo.marketplace.exceptions.ProductNotFoundException;
 import com.uade.tpo.marketplace.repository.CartRepository;
 import com.uade.tpo.marketplace.repository.OrderRepository;
 import com.uade.tpo.marketplace.repository.ProductRepository;
@@ -74,19 +75,6 @@ public class CartServiceImpl implements CartService {
             return newCart;
         });
 
-        // Validar que todos los productos sean del mismo seller
-        /*
-        if (!cart.getItems().isEmpty()) {
-            boolean sameOwner = cart.getItems().stream()
-                    .map(item -> item.getProduct().getOwner().getId())
-                    .allMatch(ownerId -> ownerId.equals(product.getOwner().getId()));
-
-            if (!sameOwner) {
-                throw new RuntimeException("El carrito solo puede contener productos de un único vendedor.");
-            }
-        }
-        */
-
         // Agregar o actualizar item
         Optional<CartItem> existingItem = cart.getItems().stream()
                 .filter(item -> item.getProduct().getId().equals(product.getId()))
@@ -114,7 +102,7 @@ public class CartServiceImpl implements CartService {
     // 🔹 Remover producto del carrito
     @Transactional
     @Override
-    public Cart removeProductFromCart(long  productId, Long userId) throws AccessDeniedException {
+    public Cart removeProductFromCart(long  productId, Long userId) throws AccessDeniedException, ProductNotFoundException {
         User currentUser = getCurrentUser();
         if (!currentUser.getId().equals(userId)) {
             throw new AccessDeniedException();
@@ -126,7 +114,7 @@ public class CartServiceImpl implements CartService {
         CartItem itemToRemove = cart.getItems().stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(ProductNotFoundException::new);
 
         if (itemToRemove != null) {
             if (itemToRemove.getQuantity() > 1) {
