@@ -24,6 +24,7 @@ import com.uade.tpo.marketplace.service.UserService;
 
 @RestController
 @RequestMapping("users")
+@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired
