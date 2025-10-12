@@ -122,10 +122,6 @@ public class ProductServiceImpl implements ProductService {
             product.setDiscountPercentage(reqDiscount);
         }
 
-        if (productRequest.getVideos() != null) {
-            product.setVideos(productRequest.getVideos());
-        }
-
         if (productRequest.getCategories() != null && !productRequest.getCategories().isEmpty()) {
             List<String> duplicadas = new ArrayList<>();
             for (String categoriaNombre : productRequest.getCategories()) {
@@ -180,4 +176,10 @@ public class ProductServiceImpl implements ProductService {
                             .map(ProductResponse::from)
                             .toList();
     }
+
+    @Override
+    public List<Product> searchProductsByName(String keyword) {
+        return productRepository.findByNameContainingIgnoreCase(keyword);
+    }
+
 }

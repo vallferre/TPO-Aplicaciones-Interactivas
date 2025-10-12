@@ -20,7 +20,6 @@ public class ProductResponse {
     private String ownerName;
     private List<String> categories;
     private List<Long> imageIds;     // <<--- reemplaza URLs
-    private List<String> videos;
 
     public ProductResponse(Long id,
                            String name,
@@ -31,8 +30,7 @@ public class ProductResponse {
                            Double finalPrice,
                            String ownerName,
                            List<String> categories,
-                           List<Long> imageIds,
-                           List<String> videos) {
+                           List<Long> imageIds) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -43,7 +41,6 @@ public class ProductResponse {
         this.ownerName = ownerName;
         this.categories = categories;
         this.imageIds = imageIds;
-        this.videos = videos;
     }
 
     public static ProductResponse from(Product product) {
@@ -60,8 +57,7 @@ public class ProductResponse {
                     .map(Category::getDescription)
                     .toList(),
             product.getFileImages() == null ? List.of()
-                : product.getFileImages().stream().map(ProductImage::getId).toList(),
-            product.getVideos()
+                : product.getFileImages().stream().map(ProductImage::getId).toList()
         );
     }
 }

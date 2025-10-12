@@ -71,12 +71,6 @@ public class Product {
     @JsonIgnore
     private List<ProductImage> fileImages = new ArrayList<>();
 
-    // VIDEOS se mantienen
-    @ElementCollection
-    @CollectionTable(name = "product_videos", joinColumns = @JoinColumn(name = "product_id"))
-    @Column(name = "video_url")
-    private List<String> videos = new ArrayList<>();
-
     @PrePersist
     @PreUpdate
     public void calculateFinalPrice() {

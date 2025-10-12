@@ -110,8 +110,6 @@ public class ProductsController {
         // porcentaje de descuento
         newProduct.setDiscountPercentage(productRequest.getEffectiveDiscountPercentage());
 
-        // videos
-        newProduct.setVideos(productRequest.getVideos() != null ? productRequest.getVideos() : new ArrayList<>());
         newProduct.setCategories(categories);
 
         Product result = productService.createProduct(newProduct, currentUser);
@@ -178,12 +176,18 @@ public class ProductsController {
 
     @GetMapping("/search")
     public ResponseEntity<List<ProductResponse>> searchProducts(@RequestParam String keyword) {
-        return ResponseEntity.ok(
-                productRepository.findByDescriptionContainingIgnoreCase(keyword).stream()
-                        .map(ProductResponse::from)
-                        .toList()
-        );
+        // Service devuelve List<Product>
+        List<Product> results = productService.searchProductsByName(keyword);
+
+        // Convertimos a ProductResponse
+        List<ProductResponse> responseList = results.stream()
+                .map(ProductResponse::from)
+                .toList();
+
+        return ResponseEntity.ok(responseList);
     }
+
+
 
     @GetMapping("/order-by-price-asc")
     public ResponseEntity<List<ProductResponse>> getProductsOrderByPriceAsc() {

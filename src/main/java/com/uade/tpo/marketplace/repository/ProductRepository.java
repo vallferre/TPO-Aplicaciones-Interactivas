@@ -55,7 +55,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // =========================
     // Texto libre en descripción
     // =========================
-    List<Product> findByDescriptionContainingIgnoreCase(String keyword);
+    List<Product> findByNameContainingIgnoreCase(String keyword);
 
     // =========================
     // >>> PRECIO FINAL <<<
