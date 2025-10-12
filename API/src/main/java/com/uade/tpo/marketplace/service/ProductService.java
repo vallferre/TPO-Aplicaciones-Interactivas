@@ -28,5 +28,5 @@ public interface ProductService {
 
     Product deleteCategory(Long productId, ProductRequest productRequest, User currentUser) throws ProductNotFoundException;
 
-    public List<ProductResponse> findByCategory(String category);
+    public List<ProductResponse> findByCategory(Long category);
 }

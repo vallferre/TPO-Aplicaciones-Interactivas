@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -17,11 +18,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Transient;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.CascadeType;
 import lombok.Data;
 
 @Data
 @Entity
+@Table(name = "Product")
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,12 +44,16 @@ public class Product {
 
     @Column
     private double price;
-    
-    @Transient
-    private Double discountPercentage;
-    
 
-    @ManyToMany //cambié esto
+    // Descuento persistido
+    @Column(name = "discount_percentage")
+    private Double discountPercentage = 0.0;
+
+    // Precio final persistido
+    @Column(name = "final_price")
+    private Double finalPrice;
+
+    @ManyToMany
     @JoinTable(
         name = "product_category",
         joinColumns = @JoinColumn(name = "product_id"),
@@ -53,18 +63,30 @@ public class Product {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "orders"}) 
-    //hibernateLazyInitializer y handler → Son campos internos que Hibernate agrega a los proxys. Jackson no los necesita y muchas veces los serializa por error. 
-    //orders → Es tu colección lazy que estaba causando el error de inicialización.
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "orders"})
     private User owner;
 
-    @ElementCollection
-    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
-    @Column(name = "image_url")
-    private List<String> images = new ArrayList<>();
+    // NUEVO: relación a imágenes por archivo
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ProductImage> fileImages = new ArrayList<>();
 
+    // VIDEOS se mantienen
     @ElementCollection
     @CollectionTable(name = "product_videos", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "video_url")
     private List<String> videos = new ArrayList<>();
+
+    @PrePersist
+    @PreUpdate
+    public void calculateFinalPrice() {
+        double basePrice = (this.price != 0) ? this.price : 0.0;
+        double d = (this.discountPercentage == null) ? 0.0 : this.discountPercentage;
+
+        if (d < 0) d = 0;
+        if (d > 100) d = 100;
+
+        this.discountPercentage = d;
+        this.finalPrice = basePrice - (basePrice * d / 100.0);
+    }
 }

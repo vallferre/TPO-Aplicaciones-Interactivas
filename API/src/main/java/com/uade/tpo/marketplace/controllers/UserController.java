@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,10 +20,13 @@ import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.entity.dto.UserRequest;
 import com.uade.tpo.marketplace.entity.dto.UserResponse;
 import com.uade.tpo.marketplace.exceptions.UserDuplicateException;
+import com.uade.tpo.marketplace.exceptions.UserNotFoundException;
 import com.uade.tpo.marketplace.service.UserService;
+
 
 @RestController
 @RequestMapping("users")
+@CrossOrigin(origins = "*") 
 public class UserController {
 
     @Autowired
@@ -45,8 +49,7 @@ public class UserController {
         if (result.isPresent()) {
             return ResponseEntity.ok(result.get());  // devuelve el usuario directamente
         } else {
-            return ResponseEntity.status(404)
-                    .body(Map.of("error", "User not found")); // mensaje de error si no existe
+            throw new UserNotFoundException(userId);
         }
     }
 
@@ -83,5 +86,13 @@ public class UserController {
                     .body(Map.of("error", "User not found")); // mensaje de error si no existe
         }
     }
+    @GetMapping("/current")
+    public ResponseEntity<UserResponse> getCurrent(@AuthenticationPrincipal User currentUser) {
+        if (currentUser == null) {
+            return ResponseEntity.status(401).build();
+        }
+            return ResponseEntity.ok(UserResponse.from(currentUser));
+}
+
     
 }

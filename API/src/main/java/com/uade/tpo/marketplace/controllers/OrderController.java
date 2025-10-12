@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.tpo.marketplace.entity.Order;
 import com.uade.tpo.marketplace.entity.User;
-import com.uade.tpo.marketplace.entity.dto.InvoiceResponse;
 import com.uade.tpo.marketplace.entity.dto.OrderResponse;
 import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
 import com.uade.tpo.marketplace.service.OrderService;
@@ -68,20 +67,6 @@ public class OrderController {
 
         Page<Order> orders = orderService.getOrdersByUser(PageRequest.of(page, size), userId);
         return orders.map(OrderResponse::new);
-    }
-
-    // Generar invoice a partir de una orden (solo comprador puede generar)
-    @PostMapping("/{orderId}/invoice")
-    public ResponseEntity<InvoiceResponse> generateInvoice(@PathVariable Long orderId) {
-        try {
-            // Ahora el service devuelve un DTO, no la entidad JPA
-            InvoiceResponse invoiceResponse = orderService.generateInvoiceForOrder(orderId);
-            return ResponseEntity.ok(invoiceResponse);
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
     }
 
 }

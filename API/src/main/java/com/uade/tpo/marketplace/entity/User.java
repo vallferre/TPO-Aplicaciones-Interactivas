@@ -56,17 +56,6 @@ public class User implements UserDetails{
     @OneToMany(mappedBy = "user")
     private List<Order> orders;
 
-    // facturas donde este usuario fue comprador
-    @OneToMany(mappedBy = "buyer")
-    @JsonIgnore
-    private List<Invoice> purchases;
-    
-    // facturas donde este usuario fue vendedor
-    @OneToMany(mappedBy = "seller")
-    @JsonIgnore
-    private List<Invoice> sales;
-
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RoleName role;

@@ -24,7 +24,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     private ProductRepository productRepository;
 
     @Override
-    public FavoriteResponse addFavoriteProduct(Long userId, String productName) throws AccessDeniedException{
+    public FavoriteResponse addFavoriteProduct(Long userId, long  productId) throws AccessDeniedException{
         User currentUser = getAuthenticatedUser();
 
         if (!currentUser.getId().equals(userId)) {
@@ -33,7 +33,7 @@ public class FavoriteServiceImpl implements FavoriteService {
 
         
 
-        Product product = productRepository.findByName(productName)
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         if (currentUser.getId().equals(product.getOwner().getId())){
@@ -51,19 +51,19 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
-    public void removeFavoriteProduct(Long userId, String productName) throws AccessDeniedException {
+    public void removeFavoriteProduct(Long userId, long  productId) throws AccessDeniedException {
         User currentUser = getAuthenticatedUser();
 
         if (!currentUser.getId().equals(userId)) {
             throw new AccessDeniedException();
         }
 
-        boolean removed = currentUser.getFavoriteProducts().removeIf(p -> p.getName().equals(productName));
+        boolean removed = currentUser.getFavoriteProducts().removeIf(p -> p.getId().equals(productId));
         if (!removed) {
             throw new RuntimeException("El producto no estaba en favoritos");
         }
 
-        currentUser.getFavoriteProducts().removeIf(p -> p.getName().equals(productName));
+        currentUser.getFavoriteProducts().removeIf(p -> p.getId().equals(productId));
         userRepository.save(currentUser);
     }
 

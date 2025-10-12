@@ -12,46 +12,98 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Maneja cualquier excepción genérica
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
+    private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String error, String message) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        body.put("error", "Internal Server Error");
-        body.put("message", ex.getMessage()); // 👈 acá vas a ver el detalle del problema
-        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+        body.put("status", status.value());
+        body.put("error", error);
+        body.put("message", message);
+        return ResponseEntity.status(status).body(body);
     }
 
-    // Maneja accesos prohibidos
+    // Security
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
-    public ResponseEntity<Map<String, Object>> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.FORBIDDEN.value());
-        body.put("error", "Forbidden");
-        body.put("message", ex.getMessage()); // 👈 Postman ahora te devuelve el detalle
-        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+    public ResponseEntity<Map<String, Object>> handleSpringAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
+        return buildResponse(HttpStatus.FORBIDDEN, "Forbidden", ex.getMessage());
     }
 
-    // Maneja recursos no encontrados
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.NOT_FOUND.value());
-        body.put("error", "Not Found");
-        body.put("message", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleCustomAccessDenied(AccessDeniedException ex) {
+        return buildResponse(HttpStatus.FORBIDDEN, "Forbidden", ex.getMessage());
     }
 
+    // Category
     @ExceptionHandler(CategoryDuplicateException.class)
     public ResponseEntity<Map<String, Object>> handleCategoryDuplicate(CategoryDuplicateException ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("error", "Duplicate category");
-        body.put("message", ex.getMessage());
-        body.put("status", HttpStatus.CONFLICT.value());
-        body.put("timestamp", LocalDateTime.now());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+        return buildResponse(HttpStatus.CONFLICT, "Duplicate category", ex.getMessage());
     }
+
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleCategoryNotFound(CategoryNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, "Category not found", ex.getMessage());
+    }
+
+    // Cart
+    @ExceptionHandler(EmptyCartException.class)
+    public ResponseEntity<Map<String, Object>> handleEmptyCart(EmptyCartException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Empty cart", ex.getMessage());
+    }
+
+    // Product
+    @ExceptionHandler(ProductDuplicateException.class)
+    public ResponseEntity<Map<String, Object>> handleProductDuplicate(ProductDuplicateException ex) {
+        return buildResponse(HttpStatus.CONFLICT, "Duplicate product", ex.getMessage());
+    }
+
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleProductNotFound(ProductNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, "Product not found", ex.getMessage());
+    }
+
+    // Users
+    @ExceptionHandler(UserDuplicateException.class)
+    public ResponseEntity<Map<String, Object>> handleUserDuplicate(UserDuplicateException ex) {
+        return buildResponse(HttpStatus.CONFLICT, "Duplicate user", ex.getMessage());
+    }
+
+    //Orders
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleOrderNotFound(OrderNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, "Order not found", ex.getMessage());
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleUserNotFound(UserNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, "User not found", ex.getMessage());
+    }
+
+
+    @ExceptionHandler(InvalidOrderTransitionException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidOrderTransition(InvalidOrderTransitionException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Invalid order transition", ex.getMessage());
+    }
+
+    // Stock
+    @ExceptionHandler(InsufficientStockException.class)
+    public ResponseEntity<Map<String, Object>> handleInsufficientStock(InsufficientStockException ex) {
+        return buildResponse(HttpStatus.CONFLICT, "Insufficient stock", ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidStockException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidStock(InvalidStockException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Invalid stock", ex.getMessage());
+    }
+
+    // Generic
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Runtime error", ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", ex.getMessage());
+    }
+
+
 }
