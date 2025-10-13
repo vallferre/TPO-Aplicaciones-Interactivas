@@ -26,7 +26,10 @@ public class UserResponse {
         res.name = user.getName();
         res.surname = user.getSurname();
         res.username = user.getUsername();
-        res.orders = user.getOrders();
+        res.orders = user.getOrders()
+            .stream()
+            .map(OrderResponse::from)
+            .toList();
         res.products = products.stream()
             .map(ProductResponse::from)
             .toList();

@@ -10,6 +10,7 @@ import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.entity.dto.UserResponse;
 import com.uade.tpo.marketplace.exceptions.UserDuplicateException;
+import com.uade.tpo.marketplace.exceptions.UserNotFoundException;
 import com.uade.tpo.marketplace.repository.ProductRepository;
 import com.uade.tpo.marketplace.repository.UserRepository;
 
@@ -23,23 +24,25 @@ public class UserServiceImpl implements UserService {
     private ProductRepository productRepository;
 
     @Override
-    public Optional<UserResponse> getUserById(Long userId, User requester) {
+    public UserResponse getUserById(Long userId, User requester) {
         boolean isAdmin = requester.getAuthorities().stream()
-        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+            .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
 
-        return userRepository.findById(userId)
-            .map(user -> {
-                List<Product> products = productRepository.findByOwner(userId);
-                if (requester.getId().equals(userId) || !isAdmin) {
-                    return UserResponse.full(user, products);
-                } else if (user.getAuthorities().stream()
-                        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
-                    throw new RuntimeException("No se puede acceder a la información de un usuario administrador.");
-                } else {
-                    return UserResponse.limited(user, products);
-                }
-            });
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + userId));
+
+        List<Product> products = productRepository.findByOwner(userId);
+
+        if (requester.getId().equals(userId) || !isAdmin) {
+            return UserResponse.full(user, products);
+        } else if (user.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new RuntimeException("No se puede acceder a la información de un usuario administrador.");
+        } else {
+            return UserResponse.limited(user, products);
+        }
     }
+
 
     @Override
     public Optional<UserResponse> getUserByEmail(String email, User requester) {

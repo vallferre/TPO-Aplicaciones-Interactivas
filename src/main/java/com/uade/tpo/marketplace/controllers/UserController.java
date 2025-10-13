@@ -52,31 +52,31 @@ public class UserController {
 
     //CAMBIE ESTO
     @GetMapping("/")
-    public ResponseEntity<Object> getUserById(
+    public ResponseEntity<UserResponse> getUserByToken(
         @RequestHeader("Authorization") String authHeader) {
         
-        // Validar header
+        // 1️⃣ Validar header
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        // Extraer token
+        // 2️⃣ Extraer token
         String token = authHeader.substring(7);
 
-        // Extraer username del token
+        // 3️⃣ Extraer username del token
         String username = jwtService.extractUsername(token);
         
-        // Buscar el usuario en la base
+        // 4️⃣ Buscar el usuario en la base
         User requester = userRepository.findByUsername(username)
             .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + username));
         
-        Optional<UserResponse> result = userService.getUserById(requester.getId(), requester);
-        if (result.isPresent()) {
-            return ResponseEntity.ok(result.get());  // devuelve el usuario directamente
-        } else {
-            throw new UserNotFoundException(requester.getId());
-        }
+        // 5️⃣ Obtener el UserResponse desde el service
+        UserResponse response = userService.getUserById(requester.getId(), requester);
+
+        // 6️⃣ Devolver la respuesta
+        return ResponseEntity.ok(response);
     }
+
 
 
 

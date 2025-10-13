@@ -23,5 +23,10 @@ public class OrderResponse {
                 .map(OrderItemResponse::from)
                 .toList();
     }
+
+    public static OrderResponse from(Order order) {
+    return new OrderResponse(order);
+}
+
 }
 
