@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,14 +13,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.uade.tpo.marketplace.controllers.config.JwtService;
 import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.entity.dto.UserRequest;
 import com.uade.tpo.marketplace.entity.dto.UserResponse;
 import com.uade.tpo.marketplace.exceptions.UserDuplicateException;
 import com.uade.tpo.marketplace.exceptions.UserNotFoundException;
+import com.uade.tpo.marketplace.repository.UserRepository;
 import com.uade.tpo.marketplace.service.UserService;
 
 @RestController
@@ -28,6 +32,12 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/email/{userEmail}")
     public ResponseEntity<Object> getUserByEmail(@PathVariable("userEmail") String userEmail, @AuthenticationPrincipal User requester) {
@@ -40,15 +50,37 @@ public class UserController {
         }
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<Object> getUserById(@PathVariable("userId") Long userId, @AuthenticationPrincipal User requester) {
-        Optional<UserResponse> result = userService.getUserById(userId, requester);
+    //CAMBIE ESTO
+    @GetMapping("/")
+    public ResponseEntity<Object> getUserById(
+        @RequestHeader("Authorization") String authHeader) {
+        
+        // Validar header
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // Extraer token
+        String token = authHeader.substring(7);
+
+        // Extraer username del token
+        String username = jwtService.extractUsername(token);
+        
+        // Buscar el usuario en la base
+        User requester = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + username));
+
+        
+        
+        Optional<UserResponse> result = userService.getUserById(requester.getId(), requester);
         if (result.isPresent()) {
             return ResponseEntity.ok(result.get());  // devuelve el usuario directamente
         } else {
-            throw new UserNotFoundException(userId);
+            throw new UserNotFoundException(requester.getId());
         }
     }
+
+
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Object> deleteUserById(@PathVariable Long userId) {

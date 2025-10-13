@@ -1,5 +1,7 @@
 package com.uade.tpo.marketplace.controllers.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -8,20 +10,16 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
-
-import java.util.List;
-
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.uade.tpo.marketplace.exceptions.CustomAuthenticationEntryPoint;
 
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -55,6 +53,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/categories/**").hasRole("ADMIN") 
 
                         // Products -> GET cualquiera, POST cualquiera, pero PUT/DELETE solo dueño (se valida en service)
+                        .requestMatchers(HttpMethod.GET, "/products/filter-by-username").authenticated()
                         .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/products/**").hasRole("USER")
                         .requestMatchers(HttpMethod.PUT, "/products/**").hasRole("USER")
