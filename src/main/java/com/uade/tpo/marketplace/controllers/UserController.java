@@ -69,8 +69,6 @@ public class UserController {
         // Buscar el usuario en la base
         User requester = userRepository.findByUsername(username)
             .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + username));
-
-        
         
         Optional<UserResponse> result = userService.getUserById(requester.getId(), requester);
         if (result.isPresent()) {
