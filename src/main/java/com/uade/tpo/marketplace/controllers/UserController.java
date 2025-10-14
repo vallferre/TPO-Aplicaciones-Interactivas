@@ -50,7 +50,29 @@ public class UserController {
         }
     }
 
-    //CAMBIE ESTO
+    @GetMapping("/role")
+    public ResponseEntity<Object> getUserRole(
+        @RequestHeader("Authorization") String authHeader) {
+        // Validar header
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // Extraer token
+        String token = authHeader.substring(7);
+
+        // Extraer username del token
+        String username = jwtService.extractUsername(token);
+        
+        //  Buscar el usuario en la base
+        User requester = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + username));
+        
+
+        return ResponseEntity.ok(Map.of("role", requester.getRole().name()));
+    }
+
+    
     @GetMapping("/")
     public ResponseEntity<UserResponse> getUserByToken(
         @RequestHeader("Authorization") String authHeader) {
