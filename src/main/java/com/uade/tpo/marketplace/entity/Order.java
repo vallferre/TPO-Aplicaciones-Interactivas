@@ -1,5 +1,6 @@
 package com.uade.tpo.marketplace.entity;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,9 @@ public class Order {
 
     @Column(nullable = false)
     private double totalAmount = 0.0;
+
+    @Column
+    private LocalDate orderDate;
 
     //lista de items de la orden
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)

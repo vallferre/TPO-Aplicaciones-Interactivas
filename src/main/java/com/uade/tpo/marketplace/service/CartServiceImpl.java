@@ -194,6 +194,7 @@ public class CartServiceImpl implements CartService {
         Order order = new Order();
         order.setUser(cart.getUser());
         order.setItems(new ArrayList<>());
+        order.setOrderDate(java.time.LocalDate.now());
 
         for (CartItem cartItem : cart.getItems()) {
             Product product = cartItem.getProduct();
