@@ -109,10 +109,11 @@ public class CartController {
     }
 
     // Eliminar producto del carrito
-    @DeleteMapping("/remove")
+    @DeleteMapping("/remove/{number}")
     public ResponseEntity<CartResponse> removeProductFromCart(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody CartRequest request) throws ProductNotFoundException {
+            @RequestBody CartRequest request,
+            @RequestParam int number) throws ProductNotFoundException {
 
         try {
 
@@ -130,7 +131,7 @@ public class CartController {
             User requester = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + username));
 
-            Cart updatedCart = cartService.removeProductFromCart(request.getProductId(), requester.getId());
+            Cart updatedCart = cartService.removeProductFromCart(request.getProductId(), requester.getId(), number);
             CartResponse response = new CartResponse(updatedCart, updatedCart.getItems());
             return ResponseEntity.ok(response);
         } catch (AccessDeniedException | RuntimeException e) {

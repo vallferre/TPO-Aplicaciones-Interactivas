@@ -12,7 +12,7 @@ import com.uade.tpo.marketplace.exceptions.ProductNotFoundException;
 
 public interface CartService {
     public Cart addProductToCart(Long userId, long  productId, int quantity) throws AccessDeniedException;
-    public Cart removeProductFromCart(long  productId, Long userId) throws AccessDeniedException, ProductNotFoundException;
+    public Cart removeProductFromCart(long  productId, Long userId, int number) throws AccessDeniedException, ProductNotFoundException;
     public List<CartItem> getCartItems(Long userId) throws AccessDeniedException;
     public void clearCart(Long userId) throws AccessDeniedException;
     public Order checkout(Long userId) throws AccessDeniedException, InsufficientStockException, EmptyCartException;
