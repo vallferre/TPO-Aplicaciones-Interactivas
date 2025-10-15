@@ -127,9 +127,25 @@ public class ProductsController {
     @DeleteMapping("/{productId}")
     public ResponseEntity<Object> deleteProduct(
             @PathVariable Long productId,
-            @AuthenticationPrincipal User currentUser) throws ProductNotFoundException {
+            @RequestHeader("Authorization") String authHeader) throws ProductNotFoundException {
+            
+        // Validar header
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
-        productService.deleteProduct(productId, currentUser);
+        // Extraer token
+        String token = authHeader.substring(7);
+
+        // Extraer username del token
+        String username = jwtService.extractUsername(token);
+        
+        //  Buscar el usuario en la base
+        User requester = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + username));
+
+
+        productService.deleteProduct(productId, requester);
         return ResponseEntity.noContent().build();
     }
 
