@@ -27,7 +27,7 @@ public class AuthenticationService {
         // Definir rol según el email
         User.RoleName role = User.RoleName.USER; // default
         String emailLower = request.getEmail().trim().toLowerCase();
-        if (emailLower.endsWith("@colecxion.com")) {
+        if (emailLower.endsWith("@relicaria.com")) {
             role = User.RoleName.ADMIN;
         }
 
