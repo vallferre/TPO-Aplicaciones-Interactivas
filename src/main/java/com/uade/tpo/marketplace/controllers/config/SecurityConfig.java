@@ -61,6 +61,9 @@ public class SecurityConfig {
 
                         .requestMatchers("/users/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/role").authenticated()
+                        
+                        // Images -> GET cualquiera, POST/DELETE solo dueño del producto (se valida en service) 
+                        .requestMatchers(HttpMethod.GET, "/images/**").permitAll()
 
 
                         .requestMatchers(HttpMethod.GET, "/orders/**").hasAnyRole("USER", "ADMIN") //.
