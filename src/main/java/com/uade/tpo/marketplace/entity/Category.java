@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,4 +34,9 @@ public class Category {
     public Category(String description) {
         this.description = description.substring(0, 1).toUpperCase() + description.substring(1).toLowerCase();
     }
+
+    // NUEVO: relación a imágenes por categoria
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<CategoryImage> fileImages = new ArrayList<>();
 }
