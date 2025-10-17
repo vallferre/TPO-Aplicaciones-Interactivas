@@ -59,4 +59,54 @@ public class CategoryServiceImpl implements CategoryService{
     public CategoryImage getCategoryImageById(Long imageId) {
         return categoryRepository.findImageByFileImageId(imageId);
     }
+
+    @Override
+    public void deleteCategory(Long categoryId) {
+        Optional<Category> categoryOpt = categoryRepository.findById(categoryId);
+        if (categoryOpt.isPresent()) {
+            Category category = categoryOpt.get();
+            // Primero borramos la imagen si existe
+            if (category.getFileImage() != null) {
+                imageRepository.delete(category.getFileImage());
+            }
+            // Luego borramos la categoría
+            categoryRepository.delete(category);
+        }
+    }
+
+    @Override
+    public Category updateCategory(Long categoryId, String description, MultipartFile fileImage) throws IOException {
+        Optional<Category> categoryOpt = categoryRepository.findById(categoryId);
+        if (categoryOpt.isEmpty()) {
+            throw new IllegalArgumentException("Category not found");
+        }
+
+        Category category = categoryOpt.get();
+
+        // Actualizamos la descripción
+        category.setDescription(description);
+
+        // Actualizamos la imagen si se envió un archivo
+        if (fileImage != null && !fileImage.isEmpty()) {
+            CategoryImage categoryImage = category.getFileImage();
+            if (categoryImage == null) {
+                categoryImage = new CategoryImage();
+            }
+
+            categoryImage.setContentType(fileImage.getContentType());
+            categoryImage.setFilename(fileImage.getOriginalFilename());
+            categoryImage.setData(fileImage.getBytes());
+            categoryImage.setSize(fileImage.getSize());
+
+            // Guardamos la imagen
+            categoryImage = imageRepository.save(categoryImage);
+
+            // Asignamos la imagen actualizada a la categoría
+            category.setFileImage(categoryImage);
+        }
+
+        // Guardamos la categoría actualizada
+        return categoryRepository.save(category);
+    }
+
 }
