@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,12 +31,12 @@ public class Category {
 
     public Category(){}
 
-    public Category(String description) {
+    public Category(String description, CategoryImage fileImage) {
         this.description = description.substring(0, 1).toUpperCase() + description.substring(1).toLowerCase();
+        this.fileImage = fileImage;
     }
 
     // NUEVO: relación a imágenes por categoria
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<CategoryImage> fileImages = new ArrayList<>();
+    @OneToOne(cascade = CascadeType.ALL)
+    private CategoryImage fileImage;
 }

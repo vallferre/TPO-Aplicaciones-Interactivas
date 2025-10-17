@@ -47,7 +47,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/cart/**").hasRole("USER")
                         .requestMatchers(HttpMethod.DELETE, "/cart/**").hasRole("USER")
 
-                        // Categories -> todos pueden ver y crear
+                        // Categories -> todos pueden ver pero no crear ni borrar
                         .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/categories/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/categories/**").hasRole("ADMIN") 

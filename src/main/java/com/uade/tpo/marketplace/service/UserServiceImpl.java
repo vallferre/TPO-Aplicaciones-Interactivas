@@ -96,11 +96,7 @@ public class UserServiceImpl implements UserService {
         user.setSurname(surname);
         user.setUsername(username);
         user.setPassword(password);
-        if (email.toLowerCase().trim().endsWith("@relicaria.com")) {
-            user.setRole(User.RoleName.ADMIN); // if relicaria.com, admin
-        } else {
-            user.setRole(User.RoleName.USER);  // default value
-        }
+        
 
         return userRepository.save(user);
     }

@@ -5,7 +5,6 @@ C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\controllers\auth\RegisterRequest.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\controllers\CartController.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\controllers\CategoriesController.java
-C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\controllers\CategoryImagesController.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\controllers\config\ApplicationConfig.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\controllers\config\JwtAuthenticationFilter.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\controllers\config\JwtService.java
@@ -24,6 +23,7 @@ C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\dto\CartResponse.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\dto\CategoryImageResponse.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\dto\CategoryRequest.java
+C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\dto\CategoryResponse.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\dto\ErrorResponse.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\dto\FavoriteRequest.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\dto\FavoriteResponse.java
