@@ -13,6 +13,7 @@ public class CartItemResponse {
     private String productDescription;
     private double priceAtAddTime;
     private ProductImage productImageUrl;
+    private double discountedPrice;
 
     public static CartItemResponse from(CartItem cartItem) {
         CartItemResponse res = new CartItemResponse();
@@ -21,6 +22,7 @@ public class CartItemResponse {
         res.productDescription = cartItem.getProduct().getDescription();
         res.quantity = cartItem.getQuantity();
         res.priceAtAddTime = cartItem.getPriceAtAddTime();
+        res.discountedPrice = cartItem.getProduct().getDiscountPercentage();
         res.productImageUrl = cartItem.getProduct().getFileImages() != null && !cartItem.getProduct().getFileImages().isEmpty()
             ? cartItem.getProduct().getFileImages().get(0)  // Asume que la primera imagen es la principal
             : null;

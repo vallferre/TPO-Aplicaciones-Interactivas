@@ -10,6 +10,7 @@ public class OrderItemResponse {
     private String description;
     private int quantity;
     private double priceAtPurchase;
+    private double discountedPriceAtPurchase = 0;
 
     public static OrderItemResponse from(OrderItem item) {
         OrderItemResponse res = new OrderItemResponse();
@@ -17,6 +18,7 @@ public class OrderItemResponse {
         res.description = item.getProduct().getDescription();
         res.quantity = item.getQuantity();
         res.priceAtPurchase = item.getPriceAtPurchase();
+        res.discountedPriceAtPurchase = item.getProduct().getDiscountPercentage();
         return res;
     }
 }
