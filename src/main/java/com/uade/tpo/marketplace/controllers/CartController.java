@@ -79,8 +79,7 @@ public class CartController {
     @PostMapping("/add")
     public ResponseEntity<CartResponse> addProductToCart(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody CartRequest request,
-            @RequestParam(defaultValue = "1") int quantity) {
+            @RequestBody CartRequest request) {
 
         try {
 
@@ -98,7 +97,7 @@ public class CartController {
             User requester = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + username));
 
-            Cart updatedCart = cartService.addProductToCart(requester.getId(), request.getProductId(), quantity);
+            Cart updatedCart = cartService.addProductToCart(requester.getId(), request.getProductId(), request.getQuantity());
             CartResponse response = new CartResponse(updatedCart, updatedCart.getItems());
             return ResponseEntity.ok(response);
         } catch (AccessDeniedException e) {

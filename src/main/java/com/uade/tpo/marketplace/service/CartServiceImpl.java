@@ -49,7 +49,7 @@ public class CartServiceImpl implements CartService {
     // 🔹 Agregar producto al carrito
     @Transactional
     @Override
-    public Cart addProductToCart(Long userId, long  productId, int quantity) throws AccessDeniedException {
+    public Cart addProductToCart(Long userId, Long productId, int quantity) throws AccessDeniedException {
         User currentUser = getCurrentUser();
 
         if (!currentUser.getId().equals(userId)) {
@@ -102,7 +102,7 @@ public class CartServiceImpl implements CartService {
     // 🔹 Remover producto del carrito
     @Transactional
     @Override
-    public Cart removeProductFromCart(long  productId, Long userId, int number) throws AccessDeniedException, ProductNotFoundException {
+    public Cart removeProductFromCart(Long  productId, Long userId, int number) throws AccessDeniedException, ProductNotFoundException {
         User currentUser = getCurrentUser();
         if (!currentUser.getId().equals(userId)) {
             throw new AccessDeniedException();

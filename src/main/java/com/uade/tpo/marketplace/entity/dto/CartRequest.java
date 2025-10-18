@@ -6,6 +6,7 @@ import lombok.Data;
 public class CartRequest {
     private String productName;
     private Long productId;
+    private int quantity;
     public String getProductName() { return productName; }
     public void setProductName(String productName) { this.productName = productName; }
     public Long getProductId() { return productId; }
