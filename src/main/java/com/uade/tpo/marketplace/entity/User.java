@@ -1,10 +1,7 @@
 package com.uade.tpo.marketplace.entity;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,14 +16,10 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -95,27 +88,4 @@ public class User implements UserDetails{
         USER,
         ADMIN
     }
-
-    @ManyToMany
-    @Builder.Default
-    @EqualsAndHashCode.Exclude
-    @JoinTable(
-        name = "user_favorites",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
-    private Set<Product> favoriteProducts = new HashSet<>();
-
-    public Set<Product> getFavoriteProducts() {
-        return favoriteProducts;
-    }
-
-    public void addFavorite(Product product) {
-        favoriteProducts.add(product);
-    }
-
-    public void removeFavorite(Product product) {
-        favoriteProducts.remove(product);
-    }
-
 }

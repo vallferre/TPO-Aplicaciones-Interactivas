@@ -18,7 +18,6 @@ public class UserResponse {
     private String username;
     private List<?> orders;
     private List<ProductResponse> products;
-    private Set<Product> favoriteProducts;
 
     public static UserResponse full(User user, List<Product> products){
         UserResponse res = new UserResponse();
@@ -33,8 +32,6 @@ public class UserResponse {
         res.products = products.stream()
             .map(ProductResponse::from)
             .toList();
-
-        res.favoriteProducts = user.getFavoriteProducts();
         return res;
     }
 

@@ -35,6 +35,7 @@ C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\dto\ProductResponse.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\dto\UserRequest.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\dto\UserResponse.java
+C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\Favorite.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\Order.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\OrderItem.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\Product.java
@@ -58,6 +59,7 @@ C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\repository\CartRepository.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\repository\CategoryImageRepository.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\repository\CategoryRepository.java
+C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\repository\FavoriteRepository.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\repository\OrderRepository.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\repository\ProductImageRepository.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\repository\ProductRepository.java

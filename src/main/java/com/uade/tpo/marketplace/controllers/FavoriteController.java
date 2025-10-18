@@ -1,6 +1,6 @@
 package com.uade.tpo.marketplace.controllers;
 
-import java.util.Set;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.tpo.marketplace.controllers.config.JwtService;
-import com.uade.tpo.marketplace.entity.Product;
+import com.uade.tpo.marketplace.entity.Favorite;
 import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.entity.dto.FavoriteRequest;
 import com.uade.tpo.marketplace.entity.dto.FavoriteResponse;
@@ -82,7 +82,7 @@ public class FavoriteController {
     }
 
     @GetMapping
-    public ResponseEntity<Set<Product>> getFavorites(@RequestHeader("Authorization") String authHeader) throws AccessDeniedException {
+    public ResponseEntity<List<Favorite>> getFavorites(@RequestHeader("Authorization") String authHeader) throws AccessDeniedException {
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
