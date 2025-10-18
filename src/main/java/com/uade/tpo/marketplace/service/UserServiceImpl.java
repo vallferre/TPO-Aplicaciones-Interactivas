@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.User;
+import com.uade.tpo.marketplace.entity.dto.UserEditRequest;
 import com.uade.tpo.marketplace.entity.dto.UserResponse;
 import com.uade.tpo.marketplace.exceptions.UserDuplicateException;
 import com.uade.tpo.marketplace.exceptions.UserNotFoundException;
@@ -16,6 +18,10 @@ import com.uade.tpo.marketplace.repository.UserRepository;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
     @Autowired
     private UserRepository userRepository;
@@ -128,4 +134,31 @@ public class UserServiceImpl implements UserService {
         }
         return false;
     }
+
+
+   @Override
+    public UserResponse editUser(User user, UserEditRequest userRequest) throws Exception {
+
+        if (userRequest.getName() != null && !userRequest.getName().trim().isEmpty()) {
+            user.setName(userRequest.getName().trim());
+        }
+        if (userRequest.getSurname() != null && !userRequest.getSurname().trim().isEmpty()) {
+            user.setSurname(userRequest.getSurname().trim());
+        }
+        if (userRequest.getEmail() != null && !userRequest.getEmail().trim().isEmpty()) {
+            user.setEmail(userRequest.getEmail().trim());
+        }
+        if (userRequest.getUsername() != null && !userRequest.getUsername().trim().isEmpty()) {
+            user.setUsername(userRequest.getUsername().trim());
+        }
+        if (userRequest.getPassword() != null && !userRequest.getPassword().trim().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(userRequest.getPassword().trim()));
+        }
+
+        return UserResponse.full(userRepository.save(user), productRepository.findByOwner(user.getId()));
+    }
+
+
+
+    
 }

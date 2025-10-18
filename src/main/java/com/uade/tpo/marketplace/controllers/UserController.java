@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.tpo.marketplace.controllers.config.JwtService;
 import com.uade.tpo.marketplace.entity.User;
+import com.uade.tpo.marketplace.entity.dto.UserEditRequest;
 import com.uade.tpo.marketplace.entity.dto.UserRequest;
 import com.uade.tpo.marketplace.entity.dto.UserResponse;
 import com.uade.tpo.marketplace.exceptions.UserDuplicateException;
@@ -134,6 +136,27 @@ public class UserController {
             return ResponseEntity.status(404)
                     .body(Map.of("error", "User not found")); // mensaje de error si no existe
         }
+    }
+
+    @PutMapping("/edit")
+    public ResponseEntity<Object> editUser(@RequestHeader("Authorization") String authHeader, @RequestBody UserEditRequest userRequest) throws Exception    {
+        // Validar header
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // Extraer token
+        String token = authHeader.substring(7);
+
+        // Extraer username del token
+        String username = jwtService.extractUsername(token);
+        
+        //  Buscar el usuario en la base
+        User requester = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + username));
+        
+        UserResponse updatedUser = userService.editUser(requester, userRequest);
+        return ResponseEntity.ok(Map.of("message", "User successfully updated", "user", updatedUser));   
     }
     
 }
