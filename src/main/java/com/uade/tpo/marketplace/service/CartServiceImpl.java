@@ -53,7 +53,7 @@ public class CartServiceImpl implements CartService {
         User currentUser = getCurrentUser();
 
         if (!currentUser.getId().equals(userId)) {
-            throw new AccessDeniedException();
+            throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
         }
 
         User user = userRepository.findById(userId)
@@ -111,7 +111,7 @@ public class CartServiceImpl implements CartService {
     public Cart removeProductFromCart(Long productId, Long userId, int number) throws AccessDeniedException, ProductNotFoundException {
         User currentUser = getCurrentUser();
         if (!currentUser.getId().equals(userId)) {
-            throw new AccessDeniedException();
+            throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
         }
 
         Cart cart = cartRepository.findByUser(userId)
@@ -146,7 +146,7 @@ public class CartServiceImpl implements CartService {
     public List<CartItem> getCartItems(Long userId) throws AccessDeniedException {
         User currentUser = getCurrentUser();
         if (!currentUser.getId().equals(userId) && !isAdmin(currentUser)) {
-            throw new AccessDeniedException();
+            throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
         }
 
         return cartRepository.findByUser(userId)
@@ -160,7 +160,7 @@ public class CartServiceImpl implements CartService {
     public void clearCart(Long userId) throws AccessDeniedException {
         User currentUser = getCurrentUser();
         if (!currentUser.getId().equals(userId)) {
-            throw new AccessDeniedException();
+            throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
         }
 
         Cart cart = cartRepository.findByUser(userId)
@@ -179,7 +179,7 @@ public class CartServiceImpl implements CartService {
         
         User currentUser = getCurrentUser();
         if (!currentUser.getId().equals(userId)) {
-            throw new AccessDeniedException();
+            throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
         }
 
         // Obtener carrito
@@ -242,7 +242,7 @@ public class CartServiceImpl implements CartService {
     public double getCartTotal(Long userId) throws AccessDeniedException {
         User currentUser = getCurrentUser();
         if (!currentUser.getId().equals(userId) && !isAdmin(currentUser)) {
-            throw new AccessDeniedException();
+            throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
         }
 
         Cart cart = cartRepository.findByUser(userId)
@@ -256,7 +256,7 @@ public class CartServiceImpl implements CartService {
     public Cart get(Long userId) throws AccessDeniedException {
         User currentUser = getCurrentUser();
         if (!currentUser.getId().equals(userId) && !isAdmin(currentUser)) {
-            throw new AccessDeniedException();
+            throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
         }
 
         return cartRepository.findByUser(userId)

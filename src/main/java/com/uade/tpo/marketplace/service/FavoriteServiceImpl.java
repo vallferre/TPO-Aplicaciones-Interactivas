@@ -33,14 +33,14 @@ public class FavoriteServiceImpl implements FavoriteService {
         User currentUser = getAuthenticatedUser();
 
         if (!currentUser.getId().equals(userId)) {
-            throw new AccessDeniedException();
+            throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
         }
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
         if (currentUser.getId().equals(product.getOwner().getId())) {
-            throw new AccessDeniedException(); // No puede marcar su propio producto
+            throw new AccessDeniedException("No puedes agregar su propio producto a favoritos."); // No puede marcar su propio producto
         }
 
         // Verificar si ya existe el favorito
@@ -64,7 +64,7 @@ public class FavoriteServiceImpl implements FavoriteService {
         User currentUser = getAuthenticatedUser();
 
         if (!currentUser.getId().equals(userId)) {
-            throw new AccessDeniedException();
+            throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
         }
 
         Favorite favorite = favoriteRepository.findByUserIdAndProductId(userId, productId)
@@ -81,7 +81,7 @@ public class FavoriteServiceImpl implements FavoriteService {
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
 
         if (!currentUser.getId().equals(userId) && !isAdmin) {
-            throw new AccessDeniedException();
+            throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
         }
 
         return favoriteRepository.findByUserId(userId);

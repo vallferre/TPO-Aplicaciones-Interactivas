@@ -32,7 +32,7 @@ public class OrderServiceImpl implements OrderService {
         User currentUser = getCurrentUser();
         // Si el usuario no es admin y no es el dueño de la orden
         if (!currentUser.getId().equals(order.getUser().getId()) && !currentUser.getRole().equals(User.RoleName.ADMIN)) {
-            throw new AccessDeniedException();
+            throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
         }
 
         return Optional.of(order); // ya lo trae JpaRepository
@@ -50,7 +50,7 @@ public class OrderServiceImpl implements OrderService {
 
         // Validar permisos
         if (!currentUser.getId().equals(userId) && !currentUser.getRole().equals(User.RoleName.ADMIN)) {
-            throw new AccessDeniedException();
+            throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
         }
 
         // Retornar órdenes del usuario

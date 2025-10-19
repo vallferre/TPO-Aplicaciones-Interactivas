@@ -40,7 +40,7 @@ public class OrderController {
                                          @RequestParam(defaultValue = "10") int size,
                                          @AuthenticationPrincipal User currentUser) throws AccessDeniedException {
         if (!currentUser.getRole().equals(User.RoleName.ADMIN)) {
-            throw new AccessDeniedException();
+            throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
         }
 
         Page<Order> orders = orderService.getOrders(PageRequest.of(page, size));
@@ -56,7 +56,7 @@ public class OrderController {
 
             // Validación de permisos
             if (!currentUser.getId().equals(order.getUser().getId()) && !currentUser.getRole().equals(User.RoleName.ADMIN)) {
-                throw new AccessDeniedException();
+                throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
             }
 
             OrderResponse response = new OrderResponse(order);
@@ -73,7 +73,7 @@ public class OrderController {
 
             // Validar header
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                throw new AccessDeniedException();
+                throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
             }
 
             // Extraer token
