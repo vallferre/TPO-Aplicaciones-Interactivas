@@ -99,10 +99,10 @@ public class CartServiceImpl implements CartService {
         return cartRepository.save(cart);
     }
 
-    // 🔹 Remover producto del carrito
+    // Remover producto del carrito
     @Transactional
     @Override
-    public Cart removeProductFromCart(Long  productId, Long userId, int number) throws AccessDeniedException, ProductNotFoundException {
+    public Cart removeProductFromCart(Long productId, Long userId, int number) throws AccessDeniedException, ProductNotFoundException {
         User currentUser = getCurrentUser();
         if (!currentUser.getId().equals(userId)) {
             throw new AccessDeniedException();
@@ -117,9 +117,13 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(ProductNotFoundException::new);
 
         if (itemToRemove != null) {
-            if (itemToRemove.getQuantity() > 1) {
-                itemToRemove.setQuantity(itemToRemove.getQuantity() - number);
+            int newQuantity = itemToRemove.getQuantity() - number;
+            
+            if (newQuantity > 0) {
+                // Si después de restar todavía queda cantidad, actualizar
+                itemToRemove.setQuantity(newQuantity);
             } else {
+                // Si la cantidad resultante es 0 o menos, eliminar el item completamente
                 cart.getItems().remove(itemToRemove);
             }
         }
