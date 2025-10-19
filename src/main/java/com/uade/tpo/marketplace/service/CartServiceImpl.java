@@ -82,10 +82,16 @@ public class CartServiceImpl implements CartService {
 
         if (existingItem.isPresent()) {
             CartItem item = existingItem.get();
+            if (item.getQuantity() + quantity > product.getStock()) {
+                throw new RuntimeException("No hay stock suficiente para el producto: " + product.getDescription());
+            }
             item.setQuantity(item.getQuantity() + quantity);
         } else {
             CartItem newItem = new CartItem();
             newItem.setProduct(product);
+            if (quantity > product.getStock()) {
+                throw new RuntimeException("No hay stock suficiente para el producto: " + product.getDescription());
+            }
             newItem.setQuantity(quantity);
             newItem.setCart(cart);
             cart.getItems().add(newItem);
