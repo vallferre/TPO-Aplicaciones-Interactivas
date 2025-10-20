@@ -1,11 +1,15 @@
 package com.uade.tpo.marketplace.controllers;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.InvalidMediaTypeException;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,17 +20,25 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.uade.tpo.marketplace.controllers.config.JwtService;
+import com.uade.tpo.marketplace.entity.CategoryImage;
 import com.uade.tpo.marketplace.entity.User;
+import com.uade.tpo.marketplace.entity.UserImage;
 import com.uade.tpo.marketplace.entity.dto.UserEditRequest;
 import com.uade.tpo.marketplace.entity.dto.UserRequest;
 import com.uade.tpo.marketplace.entity.dto.UserResponse;
 import com.uade.tpo.marketplace.exceptions.UserDuplicateException;
 import com.uade.tpo.marketplace.exceptions.UserNotFoundException;
+import com.uade.tpo.marketplace.repository.UserImageRepository;
 import com.uade.tpo.marketplace.repository.UserRepository;
+import com.uade.tpo.marketplace.service.UserImageService;
 import com.uade.tpo.marketplace.service.UserService;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @RestController
 @RequestMapping("users")
@@ -40,6 +52,9 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserImageService imageService;
 
     @GetMapping("/email/{userEmail}")
     public ResponseEntity<Object> getUserByEmail(@PathVariable("userEmail") String userEmail, @AuthenticationPrincipal User requester) {
@@ -79,30 +94,27 @@ public class UserController {
     public ResponseEntity<UserResponse> getUserByToken(
         @RequestHeader("Authorization") String authHeader) {
         
-        // 1️⃣ Validar header
+        // Validar header
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        // 2️⃣ Extraer token
+        // Extraer token
         String token = authHeader.substring(7);
 
-        // 3️⃣ Extraer username del token
+        // Extraer username del token
         String username = jwtService.extractUsername(token);
         
-        // 4️⃣ Buscar el usuario en la base
+        // Buscar el usuario en la base
         User requester = userRepository.findByUsername(username)
             .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + username));
         
-        // 5️⃣ Obtener el UserResponse desde el service
+        // Obtener el UserResponse desde el service
         UserResponse response = userService.getUserById(requester.getId(), requester);
 
-        // 6️⃣ Devolver la respuesta
+        // Devolver la respuesta
         return ResponseEntity.ok(response);
     }
-
-
-
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Object> deleteUserById(@PathVariable Long userId) {
@@ -115,13 +127,14 @@ public class UserController {
 
 
     @PostMapping
-    public ResponseEntity<Object> createUser(@RequestBody UserRequest userRequest) throws UserDuplicateException {
+    public ResponseEntity<Object> createUser(@RequestPart("user") UserRequest userRequest, @RequestPart(value = "fileImage", required = false) MultipartFile fileImage) throws UserDuplicateException, IOException {
         User result = userService.createUser(
                 userRequest.getEmail(),
                 userRequest.getName(),
                 userRequest.getSurname(),
                 userRequest.getUsername(),
-                userRequest.getPassword()
+                userRequest.getPassword(),
+                fileImage
         );
         return ResponseEntity.created(URI.create("/users/" + result.getId()))
                 .body(Map.of("message", "User successfully created", "user", result));
@@ -139,7 +152,7 @@ public class UserController {
     }
 
     @PutMapping("/edit")
-    public ResponseEntity<Object> editUser(@RequestHeader("Authorization") String authHeader, @RequestBody UserEditRequest userRequest) throws Exception    {
+    public ResponseEntity<Object> editUser(@RequestHeader("Authorization") String authHeader, @RequestPart("user") UserEditRequest userRequest, @RequestPart(value = "fileImage", required = false) MultipartFile fileImage) throws Exception    {
         // Validar header
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -155,8 +168,46 @@ public class UserController {
         User requester = userRepository.findByUsername(username)
             .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + username));
         
-        UserResponse updatedUser = userService.editUser(requester, userRequest);
+        UserResponse updatedUser = userService.editUser(requester, userRequest, fileImage);
         return ResponseEntity.ok(Map.of("message", "User successfully updated", "user", updatedUser));   
     }
+
+    @GetMapping("/{userId}/image")
+    public ResponseEntity<byte[]> getUserImage(@PathVariable Long userId) {
+        try {
+            UserImage img = imageService.getByUser(userId);
+
+            if (img == null || img.getData() == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            String filename = (img.getFilename() != null && !img.getFilename().isBlank())
+                    ? img.getFilename()
+                    : "user-image-" + img.getId();
+
+            MediaType contentType;
+            try {
+                contentType = (img.getContentType() != null)
+                        ? MediaType.parseMediaType(img.getContentType())
+                        : MediaType.APPLICATION_OCTET_STREAM;
+            } catch (InvalidMediaTypeException e) {
+                contentType = MediaType.APPLICATION_OCTET_STREAM;
+            }
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                    .contentType(contentType)
+                    .contentLength(img.getSize())
+                    .body(img.getData());
+
+        } catch (EntityNotFoundException e) {
+            // Si el usuario no existe o no tiene imagen asociada
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            // En caso de error interno
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     
 }

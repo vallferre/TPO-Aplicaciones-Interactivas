@@ -20,4 +20,5 @@ public class UserRequest {
     private List<Order> orders;
     private User.RoleName role;
     private Set<Product> favoriteProducts;
+    private Long userImagenId;
 }

@@ -11,15 +11,18 @@ import lombok.Data;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserResponse {
+    private Long id;
     private String email;
     private String name;
     private String surname;
     private String username;
     private List<?> orders;
     private List<ProductResponse> products;
+    private Long userImagenId;
 
     public static UserResponse full(User user, List<Product> products){
         UserResponse res = new UserResponse();
+        res.id = user.getId();
         res.email = user.getEmail();
         res.name = user.getName();
         res.surname = user.getSurname();
@@ -31,6 +34,7 @@ public class UserResponse {
         res.products = products.stream()
             .map(ProductResponse::from)
             .toList();
+        res.setUserImagenId(user.getUserImagen() != null ? user.getUserImagen().getId() : null);
         return res;
     }
 

@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.uade.tpo.marketplace.entity.Category;
 import com.uade.tpo.marketplace.entity.CategoryImage;
 import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.exceptions.AccessDeniedException;

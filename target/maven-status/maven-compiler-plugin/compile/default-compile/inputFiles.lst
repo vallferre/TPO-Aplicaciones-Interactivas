@@ -34,6 +34,7 @@ C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\dto\ProductRequest.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\dto\ProductResponse.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\dto\UserEditRequest.java
+C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\dto\UserImageResponse.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\dto\UserRequest.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\dto\UserResponse.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\Favorite.java
@@ -42,6 +43,7 @@ C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\Product.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\ProductImage.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\User.java
+C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\entity\UserImage.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\exceptions\AccessDeniedException.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\exceptions\CategoryDuplicateException.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\exceptions\CategoryNotFoundException.java
@@ -64,6 +66,7 @@ C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\repository\OrderRepository.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\repository\ProductImageRepository.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\repository\ProductRepository.java
+C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\repository\UserImageRepository.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\repository\UserRepository.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\service\AuthenticationService.java
 C:\Users\Val\Desktop\Fer\UADE\3er año\Aplicaciones Interactivas\development\TPO-Aplicaciones-Interactivas\src\main\java\com\uade\tpo\marketplace\service\CartService.java

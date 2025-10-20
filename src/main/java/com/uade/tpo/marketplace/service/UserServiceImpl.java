@@ -1,19 +1,25 @@
 package com.uade.tpo.marketplace.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.uade.tpo.marketplace.entity.Category;
+import com.uade.tpo.marketplace.entity.CategoryImage;
 import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.User;
+import com.uade.tpo.marketplace.entity.UserImage;
 import com.uade.tpo.marketplace.entity.dto.UserEditRequest;
 import com.uade.tpo.marketplace.entity.dto.UserResponse;
 import com.uade.tpo.marketplace.exceptions.UserDuplicateException;
 import com.uade.tpo.marketplace.exceptions.UserNotFoundException;
 import com.uade.tpo.marketplace.repository.ProductRepository;
+import com.uade.tpo.marketplace.repository.UserImageRepository;
 import com.uade.tpo.marketplace.repository.UserRepository;
 
 @Service
@@ -22,12 +28,14 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private UserImageRepository imageRepository;
 
     @Override
     public UserResponse getUserById(Long userId, User requester) {
@@ -89,7 +97,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(String email, String name, String surname, String username, String password) throws UserDuplicateException {
+    public User createUser(String email, String name, String surname, String username, String password, MultipartFile fileImage) throws UserDuplicateException, IOException {
         // verify if email exists in bd
         if (userRepository.findByEmail(email).isPresent()) {
             throw new UserDuplicateException("El email ya está registrado: " + email);
@@ -102,13 +110,25 @@ public class UserServiceImpl implements UserService {
         user.setSurname(surname);
         user.setUsername(username);
         user.setPassword(password);
+
+        UserImage userImage = null;
+
+        if (fileImage != null && !fileImage.isEmpty()) {
+            userImage = new UserImage();
+            userImage.setContentType(fileImage.getContentType());
+            userImage.setFilename(fileImage.getOriginalFilename());
+            userImage.setData(fileImage.getBytes());
+            userImage.setSize(fileImage.getSize());
+            userImage = imageRepository.save(userImage); // guardo la imagen primero
+        }
         
+        user.setUserImagen(userImage);
 
         return userRepository.save(user);
     }
 
     @Override
-    public User updateUser(User user) {
+    public User updateUser(User user, MultipartFile fileImage) {
         // Verify user in BD
         User existingUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -137,7 +157,7 @@ public class UserServiceImpl implements UserService {
 
 
    @Override
-    public UserResponse editUser(User user, UserEditRequest userRequest) throws Exception {
+    public UserResponse editUser(User user, UserEditRequest userRequest, MultipartFile fileImage) throws Exception {
 
         if (userRequest.getName() != null && !userRequest.getName().trim().isEmpty()) {
             user.setName(userRequest.getName().trim());
@@ -153,6 +173,24 @@ public class UserServiceImpl implements UserService {
         }
         if (userRequest.getPassword() != null && !userRequest.getPassword().trim().isEmpty()) {
             user.setPassword(passwordEncoder.encode(userRequest.getPassword().trim()));
+        }
+
+        if (fileImage != null && !fileImage.isEmpty()) {
+            UserImage userImage = user.getUserImagen();
+            if (userImage == null) {
+                userImage = new UserImage();
+            }
+
+            userImage.setContentType(fileImage.getContentType());
+            userImage.setFilename(fileImage.getOriginalFilename());
+            userImage.setData(fileImage.getBytes());
+            userImage.setSize(fileImage.getSize());
+
+            // Guardamos la imagen
+            userImage = imageRepository.save(userImage);
+
+            // Asignamos la imagen actualizada al usuario
+            user.setUserImagen(userImage);
         }
 
         return UserResponse.full(userRepository.save(user), productRepository.findByOwner(user.getId()));
