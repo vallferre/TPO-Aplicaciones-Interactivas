@@ -1,6 +1,7 @@
 package com.uade.tpo.marketplace.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -74,17 +75,23 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
-    public List<Favorite> getFavoriteProducts(Long userId) throws AccessDeniedException {
+    public List<FavoriteResponse> getFavoriteProducts(Long userId) throws AccessDeniedException {
         User currentUser = getAuthenticatedUser();
 
         boolean isAdmin = currentUser.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
 
         if (!currentUser.getId().equals(userId) && !isAdmin) {
-            throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
+            throw new AccessDeniedException("No tienes permisos para realizar esta acción.");
         }
 
-        return favoriteRepository.findByUserId(userId);
+        // Obtener todos los favoritos del usuario
+        List<Favorite> favorites = favoriteRepository.findByUserId(userId);
+
+        // Convertir cada Favorite a un FavoriteResponse usando el método from()
+        return favorites.stream()
+                .map(FavoriteResponse::from)
+                .collect(Collectors.toList());
     }
 
     private User getAuthenticatedUser() {

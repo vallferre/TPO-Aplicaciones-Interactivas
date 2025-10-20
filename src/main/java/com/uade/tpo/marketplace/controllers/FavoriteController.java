@@ -82,7 +82,7 @@ public class FavoriteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Favorite>> getFavorites(@RequestHeader("Authorization") String authHeader) throws AccessDeniedException {
+    public ResponseEntity<List<FavoriteResponse>> getFavorites(@RequestHeader("Authorization") String authHeader) throws AccessDeniedException {
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

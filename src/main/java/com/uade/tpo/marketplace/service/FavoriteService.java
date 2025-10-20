@@ -9,5 +9,5 @@ import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
 public interface FavoriteService {
     public FavoriteResponse addFavoriteProduct(Long userId, Long productId) throws AccessDeniedException;
     public void removeFavoriteProduct(Long userId, Long productId) throws AccessDeniedException;
-    public List<Favorite> getFavoriteProducts(Long userId) throws AccessDeniedException;
+    public List<FavoriteResponse> getFavoriteProducts(Long userId) throws AccessDeniedException;
 }

@@ -34,4 +34,12 @@ public class FavoriteResponse {
         this.favoriteProductIds = List.of(productId);
         this.message = message;
     }
+
+    public static FavoriteResponse from(Favorite favorite) {
+        return new FavoriteResponse(
+                favorite.getUser().getUsername(),
+                List.of(favorite.getProductId()),
+                "Producto favorito cargado correctamente"
+        );
+    }
 }
