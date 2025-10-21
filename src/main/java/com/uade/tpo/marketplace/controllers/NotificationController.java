@@ -2,6 +2,7 @@ package com.uade.tpo.marketplace.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.http.HttpHeaders;
@@ -36,6 +37,7 @@ public class NotificationController {
 
     // Endpoint para notificar a los usuarios que tienen el producto en favoritos
     @PostMapping("/product/{productId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> notifyFavorites(@PathVariable Long productId) {
         // Llama al service para enviar la notificación
         notificationService.notifyUsersByProductId(productId);
@@ -45,6 +47,7 @@ public class NotificationController {
     }
 
     @PostMapping("/welcome")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> register(@RequestHeader("Authorization") String authHeader) {
         try {
             // Validar header

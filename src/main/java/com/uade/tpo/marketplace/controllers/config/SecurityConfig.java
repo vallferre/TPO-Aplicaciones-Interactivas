@@ -70,6 +70,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/orders/**").hasRole("USER") //.
                         .requestMatchers(HttpMethod.GET, "/invoices/**").hasAnyRole("USER", "ADMIN") //.
 
+                        .requestMatchers(HttpMethod.POST, "/api/notifications/**").hasRole("ADMIN") //.
+
                         .anyRequest().authenticated())
                         .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                         .authenticationProvider(authenticationProvider)
