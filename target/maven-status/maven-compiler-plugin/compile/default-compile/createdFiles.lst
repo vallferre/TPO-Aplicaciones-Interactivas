@@ -8,7 +8,6 @@ com\uade\tpo\marketplace\entity\ProductImage.class
 com\uade\tpo\marketplace\entity\Notification.class
 com\uade\tpo\marketplace\entity\Favorite.class
 com\uade\tpo\marketplace\exceptions\GlobalExceptionHandler.class
-com\uade\tpo\marketplace\service\ProductImageServiceImpl.class
 com\uade\tpo\marketplace\controllers\auth\RegisterRequest.class
 com\uade\tpo\marketplace\entity\Category.class
 com\uade\tpo\marketplace\entity\dto\RatingResponse.class
@@ -25,12 +24,10 @@ com\uade\tpo\marketplace\controllers\auth\AuthenticationRequest$AuthenticationRe
 com\uade\tpo\marketplace\entity\dto\NotificationResponse$NotificationResponseBuilder.class
 com\uade\tpo\marketplace\entity\Order.class
 com\uade\tpo\marketplace\entity\dto\OrderRequest.class
-com\uade\tpo\marketplace\service\UserServiceImpl.class
 com\uade\tpo\marketplace\controllers\config\ApplicationConfig.class
 com\uade\tpo\marketplace\service\CategoryImageServiceImpl.class
 com\uade\tpo\marketplace\entity\dto\ProductResponse.class
 com\uade\tpo\marketplace\exceptions\ProductNotFoundException.class
-com\uade\tpo\marketplace\service\NotificationServiceImpl.class
 com\uade\tpo\marketplace\service\RatingService.class
 com\uade\tpo\marketplace\exceptions\CustomAuthenticationEntryPoint.class
 com\uade\tpo\marketplace\service\NotificationService.class
@@ -40,7 +37,6 @@ com\uade\tpo\marketplace\entity\dto\NotificationRequest$NotificationRequestBuild
 com\uade\tpo\marketplace\repository\RatingRepository.class
 com\uade\tpo\marketplace\ApiApplication.class
 com\uade\tpo\marketplace\repository\UserImageRepository.class
-com\uade\tpo\marketplace\service\ProductServiceImpl.class
 com\uade\tpo\marketplace\entity\dto\ErrorResponse.class
 com\uade\tpo\marketplace\service\CartService.class
 com\uade\tpo\marketplace\entity\dto\CategoryImageResponse.class
@@ -73,12 +69,10 @@ com\uade\tpo\marketplace\exceptions\UserDuplicateException.class
 com\uade\tpo\marketplace\controllers\NotificationController.class
 com\uade\tpo\marketplace\controllers\UserController.class
 com\uade\tpo\marketplace\exceptions\InvalidStockException.class
-com\uade\tpo\marketplace\service\UserImageServiceImpl.class
 com\uade\tpo\marketplace\repository\CartRepository.class
 com\uade\tpo\marketplace\entity\Product.class
 com\uade\tpo\marketplace\entity\dto\CategoryRequest.class
 com\uade\tpo\marketplace\exceptions\InsufficientStockException.class
-com\uade\tpo\marketplace\service\OrderServiceImpl.class
 com\uade\tpo\marketplace\service\ProductImageService.class
 com\uade\tpo\marketplace\entity\Cart.class
 com\uade\tpo\marketplace\entity\CategoryImage.class
@@ -99,7 +93,6 @@ com\uade\tpo\marketplace\controllers\auth\AuthenticationRequest.class
 com\uade\tpo\marketplace\entity\dto\OrderItemResponse.class
 com\uade\tpo\marketplace\controllers\ProductsController.class
 com\uade\tpo\marketplace\entity\CartItem.class
-com\uade\tpo\marketplace\service\RatingServiceImpl.class
 com\uade\tpo\marketplace\entity\dto\OrderResponse.class
 com\uade\tpo\marketplace\exceptions\CategoryDuplicateException.class
 com\uade\tpo\marketplace\entity\dto\CartRequest.class

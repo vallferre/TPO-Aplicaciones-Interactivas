@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -79,5 +80,19 @@ public class NotificationServiceImpl implements NotificationService {
                 }
             });
         }
+    }
+
+    @Override
+    public void sendWelcomeNotification(String email, String username) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setFrom(from);
+        message.setSubject("¡Bienvenido a nuestra tienda!");
+        message.setText("Hola " + username + ",\n\n"
+                + "¡Gracias por registrarte en nuestro marketplace! 🎉\n"
+                + "A partir de ahora podrás explorar nuestra comunidad, agregar tus favoritos y mucho más.\n\n"
+                + "¡Nos alegra tenerte con nosotros!\n\n"
+                + "El equipo de Replicaria 🛒");
+        mailSender.send(message);
     }
 }
