@@ -2,6 +2,8 @@ package com.uade.tpo.marketplace.repository;
 
 import com.uade.tpo.marketplace.entity.Favorite;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,4 +20,7 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
     // Eliminar un favorito específico
     void deleteByUserIdAndProductId(Long userId, Long productId);
+
+    @Query("SELECT f.user.id FROM Favorite f WHERE f.productId = :productId")
+    List<Long> findUserIdsByProductId(@Param("productId") Long productId);
 }
