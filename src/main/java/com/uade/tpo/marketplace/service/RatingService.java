@@ -1,6 +1,9 @@
 package com.uade.tpo.marketplace.service;
 
+import java.util.List;
+
 import com.uade.tpo.marketplace.entity.Rating;
+import com.uade.tpo.marketplace.entity.dto.RatingResponse;
 
 public interface RatingService {
 
@@ -15,5 +18,7 @@ public interface RatingService {
 
     // Agregar o actualizar un rating de un usuario para un producto, con comentario opcional
     Rating addRatingToProduct(Long productId, Long userId, int value, String comment);
+
+    List<RatingResponse> getRatingsForProduct(Long productId);
 
 }

@@ -1,11 +1,15 @@
 package com.uade.tpo.marketplace.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.Rating;
 import com.uade.tpo.marketplace.entity.User;
+import com.uade.tpo.marketplace.entity.dto.RatingResponse;
 import com.uade.tpo.marketplace.repository.ProductRepository;
 import com.uade.tpo.marketplace.repository.RatingRepository;
 import com.uade.tpo.marketplace.repository.UserRepository;
@@ -61,6 +65,17 @@ public class RatingServiceImpl implements RatingService {
         rating.setComment(comment);
 
         return ratingRepository.save(rating);
+    }
+
+    @Override
+    public List<RatingResponse> getRatingsForProduct(Long productId) {
+        // Obtener todos los ratings del producto
+        List<Rating> ratings = ratingRepository.findByProductId(productId);
+
+        // Mapear a RatingResponse
+        return ratings.stream()
+                .map(RatingResponse::from)
+                .collect(Collectors.toList());
     }
 
 }
