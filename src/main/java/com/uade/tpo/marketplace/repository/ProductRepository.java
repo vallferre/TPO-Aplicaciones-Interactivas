@@ -90,4 +90,22 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     boolean existsByOwnerIdAndNameAndDescription(@Param("ownerId") Long ownerId,
                                                  @Param("name") String name,
                                                  @Param("description") String description);
+
+
+
+       // =========================
+       // Rating por estrellas
+       // =========================
+
+       // Productos con promedio de rating redondeado >= minStars
+       @Query("SELECT p FROM Product p JOIN p.ratings r " +
+              "GROUP BY p " +
+              "HAVING ROUND(AVG(r.value)) >= :minStars")
+       List<Product> findByMinStars(@Param("minStars") int minStars); 
+
+       // Productos con promedio de rating redondeado <= maxStars
+       @Query("SELECT p FROM Product p JOIN p.ratings r " +
+              "GROUP BY p " +
+              "HAVING ROUND(AVG(r.value)) <= :maxStars")
+       List<Product> findByMaxStars(@Param("maxStars") int maxStars);
 }
