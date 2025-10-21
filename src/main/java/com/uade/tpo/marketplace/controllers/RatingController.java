@@ -1,5 +1,7 @@
 package com.uade.tpo.marketplace.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -101,9 +103,18 @@ public class RatingController {
         response.setProductId(productId);
         response.setUserId(user.getId());
         response.setValue(value);
+        response.setUsername(user.getUsername());
         response.setComment(comment);
 
         return ResponseEntity.ok(response);
     }
+
+    // 📄 Obtener todas las opiniones de un producto (público)
+    @GetMapping("/by-product/{productId}")
+    public ResponseEntity<List<RatingResponse>> getRatingsForProduct(@PathVariable Long productId) {
+        List<RatingResponse> ratings = ratingService.getRatingsForProduct(productId);
+        return ResponseEntity.ok(ratings);
+    }
+
 
 }

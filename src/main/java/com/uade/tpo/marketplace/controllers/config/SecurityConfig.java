@@ -53,7 +53,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/categories/**").hasRole("ADMIN") 
 
                         // Products -> GET cualquiera, POST cualquiera, pero PUT/DELETE solo dueño (se valida en service)
+                        
+                        .requestMatchers(HttpMethod.GET, "/ratings/by-product/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/ratings/average/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/ratings/count/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/ratings/count-by-value/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/products/filter-by-username").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/ratings/add/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/products/**").hasRole("USER")
                         .requestMatchers(HttpMethod.PUT, "/products/**").hasRole("USER")
