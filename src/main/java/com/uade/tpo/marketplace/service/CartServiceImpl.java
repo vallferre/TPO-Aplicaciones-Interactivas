@@ -214,6 +214,10 @@ public class CartServiceImpl implements CartService {
             orderItem.setOrder(order);
             orderItem.setProduct(product);
             orderItem.setProductIdSnapshot(product.getId());
+            orderItem.setProductNameSnapshot(product.getName());
+            orderItem.setProductDescriptionSnapshot(product.getDescription());
+            orderItem.setProductPriceSnapshot(product.getPrice());
+            orderItem.setProductDiscountedPriceSnapshot(product.getDiscountPercentage());
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setPriceAtPurchase(cartItem.getPriceAtAddTime());
 

@@ -17,13 +17,18 @@ public class OrderItemResponse {
     public static OrderItemResponse from(OrderItem item) {
         OrderItemResponse res = new OrderItemResponse();
         res.productIdSnapshot = item.getProductIdSnapshot();
-        res.description = item.getProduct().getDescription();
-        res.quantity = item.getQuantity();
-        res.priceAtPurchase = item.getPriceAtPurchase();
-        res.discountedPriceAtPurchase = item.getProduct().getDiscountPercentage();
-        res.productImageUrl= item.getProduct().getFileImages() != null && !item.getProduct().getFileImages().isEmpty()
-            ? item.getProduct().getFileImages().get(0)  // Asume que la primera imagen es la principal
-            : null;
+        res.description = item.getProductDescriptionSnapshot();
+        res.quantity = item.getProductQuantitySnapshot();
+        res.priceAtPurchase = item.getProductPriceSnapshot();
+        res.discountedPriceAtPurchase = item.getProductDiscountedPriceSnapshot();
+        if (item.getProduct() != null) {
+            res.productImageUrl = item.getProduct().getFileImages() != null && !item.getProduct().getFileImages().isEmpty()
+                ? item.getProduct().getFileImages().get(0)
+                : null;
+        } else {
+            // Product was deleted, no image available
+            res.productImageUrl = null;
+        }
         return res;
     }
 }

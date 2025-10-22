@@ -31,6 +31,12 @@ public class OrderItem {
     // Store product snapshot at time of purchase
     @Column(name = "product_id_snapshot")
     private Long productIdSnapshot;
+    
+    private String productNameSnapshot;
+    private String productDescriptionSnapshot;
+    private int productQuantitySnapshot;
+    private double productPriceSnapshot;
+    private double productDiscountedPriceSnapshot;
 
     // Cantidad de unidades de ese producto
     @Column(nullable = false)
