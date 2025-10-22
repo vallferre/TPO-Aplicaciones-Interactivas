@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 public class OrderItemResponse {
-    private Long productId;
+    private Long productIdSnapshot;
     private String description;
     private int quantity;
     private double priceAtPurchase;
@@ -16,7 +16,7 @@ public class OrderItemResponse {
 
     public static OrderItemResponse from(OrderItem item) {
         OrderItemResponse res = new OrderItemResponse();
-        res.productId = item.getProduct().getId();
+        res.productIdSnapshot = item.getProductIdSnapshot();
         res.description = item.getProduct().getDescription();
         res.quantity = item.getQuantity();
         res.priceAtPurchase = item.getPriceAtPurchase();

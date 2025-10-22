@@ -25,8 +25,12 @@ public class OrderItem {
 
     // El producto comprado
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = true)
     private Product product;
+
+    // Store product snapshot at time of purchase
+    @Column(name = "product_id_snapshot")
+    private Long productIdSnapshot;
 
     // Cantidad de unidades de ese producto
     @Column(nullable = false)

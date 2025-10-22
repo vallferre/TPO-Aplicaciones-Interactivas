@@ -28,8 +28,10 @@ public class RatingServiceImpl implements RatingService {
 
     @Override
     public double getAverageRatingForProduct(Long productId) {
-        Double avg = ratingRepository.findAverageRating(productId);
-        return avg != null ? avg : 0.0;
+        List<Rating> ratings = ratingRepository.findByProductId(productId);
+        if (ratings.isEmpty()) return 5.0; // valor por defecto si no hay ratings
+        double sum = ratings.stream().mapToDouble(Rating::getValue).sum();
+        return sum / ratings.size();
 
     }
 

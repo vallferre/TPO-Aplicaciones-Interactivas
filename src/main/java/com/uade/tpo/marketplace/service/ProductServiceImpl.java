@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.marketplace.entity.Category;
+import com.uade.tpo.marketplace.entity.OrderItem;
 import com.uade.tpo.marketplace.entity.Product;
 import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.entity.dto.ProductRequest;
@@ -18,6 +19,7 @@ import com.uade.tpo.marketplace.exceptions.InvalidStockException;
 import com.uade.tpo.marketplace.exceptions.ProductDuplicateException;
 import com.uade.tpo.marketplace.exceptions.ProductNotFoundException;
 import com.uade.tpo.marketplace.repository.CategoryRepository;
+import com.uade.tpo.marketplace.repository.OrderItemRepository;
 import com.uade.tpo.marketplace.repository.ProductRepository;
 
 @Service
@@ -27,6 +29,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     @Override
     public Page<Product> getProducts(PageRequest pageable) {
@@ -76,6 +81,13 @@ public class ProductServiceImpl implements ProductService {
 
         boolean isAdmin = currentUser.getAuthorities().stream()
         .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        // Detach product from order items
+        List<OrderItem> orderItems = orderItemRepository.findByProductId(productId);
+        for (OrderItem item : orderItems) {
+            item.setProduct(null);
+            orderItemRepository.save(item);
+        }
 
         if (!product.getOwner().getId().equals(currentUser.getId()) && !isAdmin) {
             throw new RuntimeException("No tenés permiso para eliminar este producto");
