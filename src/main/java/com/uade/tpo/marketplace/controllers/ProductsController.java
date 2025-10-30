@@ -73,10 +73,10 @@ public class ProductsController {
     }
 
     @GetMapping("/id/{productId}")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long productId) {
-        Optional<Product> result = productService.getProductById(productId);
-        return result.map(p -> ResponseEntity.ok(ProductResponse.from(p)))
-                     .orElseGet(() -> ResponseEntity.noContent().build());
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long productId) throws ProductNotFoundException {
+        Product product = productService.getProductById(productId)
+            .orElseThrow(ProductNotFoundException::new);
+            return ResponseEntity.ok(ProductResponse.from(product));
     }
 
     @GetMapping("/name/{productName}")
