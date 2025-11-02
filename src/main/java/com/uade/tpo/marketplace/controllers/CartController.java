@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -108,10 +109,10 @@ public class CartController {
     }
 
     // Eliminar producto del carrito
-    @DeleteMapping("/remove/{number}")
+    @DeleteMapping("/remove/{productId}")
     public ResponseEntity<CartResponse> removeProductFromCart(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody CartRequest request,
+            @PathVariable Long productId,
             @RequestParam int number) throws ProductNotFoundException {
 
         try {
@@ -130,7 +131,8 @@ public class CartController {
             User requester = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + username));
 
-            Cart updatedCart = cartService.removeProductFromCart(request.getProductId(), requester.getId(), number);
+            Cart updatedCart = cartService.removeProductFromCart(productId, requester.getId(), number);
+
             CartResponse response = new CartResponse(updatedCart, updatedCart.getItems());
             return ResponseEntity.ok(response);
         } catch (AccessDeniedException | RuntimeException e) {
