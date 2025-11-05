@@ -79,10 +79,10 @@ public class CategoriesController {
     }
 
     @GetMapping({"/by-description/{description}"})
-    public ResponseEntity<Category> getCategoryByDescription(@PathVariable String description) {
+    public ResponseEntity<CategoryResponse> getCategoryByDescription(@PathVariable String description) {
         Optional<Category> result = categoryService.getCategoryByDescription(description);
         if (result.isPresent())
-            return ResponseEntity.ok(result.get());
+            return ResponseEntity.ok(CategoryResponse.from(result.get()));
 
         return ResponseEntity.noContent().build();
     }
