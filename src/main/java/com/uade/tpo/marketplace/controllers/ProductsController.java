@@ -279,4 +279,17 @@ public class ProductsController {
 
         return ResponseEntity.ok(products);
     }
+
+    @PostMapping("/by-ids")
+    public ResponseEntity<List<ProductResponse>> getProductsByIds(
+            @RequestBody List<Long> ids
+    ) {
+        List<Product> products = productService.getProductsByIds(ids);
+
+        List<ProductResponse> response = products.stream()
+                .map(ProductResponse::from)
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
 }

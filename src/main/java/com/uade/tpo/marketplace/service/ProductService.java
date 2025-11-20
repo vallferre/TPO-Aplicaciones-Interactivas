@@ -31,4 +31,6 @@ public interface ProductService {
     public List<ProductResponse> findByCategory(Long category);
 
     public List<Product> searchProductsByName(String keyword);
+
+    public List<Product> getProductsByIds(List<Long> ids);
 }

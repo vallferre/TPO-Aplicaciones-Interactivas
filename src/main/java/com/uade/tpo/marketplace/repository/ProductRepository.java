@@ -108,4 +108,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
               "GROUP BY p " +
               "HAVING ROUND(AVG(r.value)) <= :maxStars")
        List<Product> findByMaxStars(@Param("maxStars") int maxStars);
+
+       //Encontrar varios productos especificos
+       List<Product> findByIdIn(List<Long> ids);
 }

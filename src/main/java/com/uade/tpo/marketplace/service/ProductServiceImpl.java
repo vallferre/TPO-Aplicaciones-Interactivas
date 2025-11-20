@@ -194,4 +194,10 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findByNameContainingIgnoreCase(keyword);
     }
 
+    @Override
+    public List<Product> getProductsByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
+        return productRepository.findByIdIn(ids);
+    }
+
 }
