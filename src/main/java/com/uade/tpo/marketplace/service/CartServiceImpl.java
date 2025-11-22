@@ -46,7 +46,7 @@ public class CartServiceImpl implements CartService {
         return (User) auth.getPrincipal();
     }
 
-    // 🔹 Agregar producto al carrito
+    // Agregar producto al carrito
     @Transactional
     @Override
     public Cart addProductToCart(Long userId, Long productId, int quantity) throws AccessDeniedException {
@@ -141,7 +141,7 @@ public class CartServiceImpl implements CartService {
         return cartRepository.save(cart);
     }
 
-    // 🔹 Mostrar items del carrito
+    // Mostrar items del carrito
     @Override
     public List<CartItem> getCartItems(Long userId) throws AccessDeniedException {
         User currentUser = getCurrentUser();
@@ -154,7 +154,7 @@ public class CartServiceImpl implements CartService {
                 .getItems();
     }
 
-    // 🔹 Vaciar carrito
+    // Vaciar carrito
     @Transactional
     @Override
     public void clearCart(Long userId) throws AccessDeniedException {
@@ -172,7 +172,7 @@ public class CartServiceImpl implements CartService {
     }
 
         
-    // 🔹 Checkout
+    // Checkout
     @Transactional
     @Override
     public Order checkout(Long userId) throws AccessDeniedException, InsufficientStockException, EmptyCartException {
@@ -219,6 +219,7 @@ public class CartServiceImpl implements CartService {
             orderItem.setProductPriceSnapshot(product.getPrice());
             orderItem.setProductDiscountedPriceSnapshot(product.getDiscountPercentage());
             orderItem.setQuantity(cartItem.getQuantity());
+            orderItem.setProductQuantitySnapshot(cartItem.getQuantity());
             orderItem.setPriceAtPurchase(cartItem.getPriceAtAddTime());
 
             order.getItems().add(orderItem);
@@ -256,7 +257,7 @@ public class CartServiceImpl implements CartService {
         return cart.calculateTotal();
     }
 
-    // 🔹 Obtener carrito completo
+    // Obtener carrito completo
     @Override
     public Cart get(Long userId) throws AccessDeniedException {
         User currentUser = getCurrentUser();
