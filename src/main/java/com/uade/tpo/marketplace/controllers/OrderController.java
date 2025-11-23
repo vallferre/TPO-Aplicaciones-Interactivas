@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.tpo.marketplace.controllers.config.JwtService;
-import com.uade.tpo.marketplace.entity.Order;
 import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.entity.dto.OrderResponse;
 import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
@@ -39,64 +38,59 @@ public class OrderController {
     public Page<OrderResponse> getOrders(@RequestParam(defaultValue = "0") int page,
                                          @RequestParam(defaultValue = "10") int size,
                                          @AuthenticationPrincipal User currentUser) throws AccessDeniedException {
+
         if (!currentUser.getRole().equals(User.RoleName.ADMIN)) {
             throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
         }
 
-        Page<Order> orders = orderService.getOrders(PageRequest.of(page, size));
-        return orders.map(OrderResponse::new);
+        return orderService.getOrders(PageRequest.of(page, size));
     }
 
     // Obtener una orden por ID (solo admin o dueño)
-        @GetMapping("/{orderId}")
-        public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long orderId,
-                                                        @AuthenticationPrincipal User currentUser) throws AccessDeniedException {
-            Order order = orderService.getOrderById(orderId)
-                    .orElseThrow(() -> new RuntimeException("Order not found"));
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderResponse> getOrderById(
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal User currentUser) throws AccessDeniedException {
 
-            // Validación de permisos
-            if (!currentUser.getId().equals(order.getUser().getId()) && !currentUser.getRole().equals(User.RoleName.ADMIN)) {
-                throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
-            }
+        OrderResponse response = orderService.getOrderById(orderId)
+                .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
 
-            OrderResponse response = new OrderResponse(order);
-            return ResponseEntity.ok(response);
+        // Validación de permisos (ya se validó en service, pero dejamos doble check)
+        if (!currentUser.getId().equals(response.getUserId())
+                && !currentUser.getRole().equals(User.RoleName.ADMIN)) {
+            throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
         }
 
-        // Obtener órdenes de un usuario (solo admin o el mismo usuario)
-        @GetMapping("/user")
-        public Page<OrderResponse> getOrdersByUser(
-                @RequestHeader("Authorization") String authHeader,
-                @RequestParam(defaultValue = "0") int page,
-                @RequestParam(defaultValue = "10") int size,
-                @RequestParam(defaultValue = "desc") String sort) throws AccessDeniedException {
+        return ResponseEntity.ok(response);
+    }
 
-            // Validar header
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
-            }
+    // Obtener órdenes de un usuario (solo admin o el mismo usuario)
+    @GetMapping("/user")
+    public Page<OrderResponse> getOrdersByUser(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "desc") String sort) throws AccessDeniedException {
 
-            // Extraer token
-            String token = authHeader.substring(7);
-
-            // Extraer username del token
-            String username = jwtService.extractUsername(token);
-
-            // Buscar el usuario en la base
-            User requester = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + username));
-
-            // Ordenar por la propiedad real de la entidad (id o createdAt)
-            Sort sortOrder = sort.equalsIgnoreCase("desc") 
-                    ? Sort.by("id").descending()  // <-- usar 'id' que es el campo real de Order
-                    : Sort.by("id").ascending();
-
-            // Llamar al service con el userId y la ordenación
-            Page<Order> orders = orderService.getOrdersByUser(PageRequest.of(page, size, sortOrder), requester.getId());
-
-            // Mapear a DTO (OrderResponse)
-            return orders.map(OrderResponse::from);
+        // Validar header
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
         }
 
+        String token = authHeader.substring(7);
+        String username = jwtService.extractUsername(token);
 
+        User requester = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + username));
+
+        Sort sortOrder = sort.equalsIgnoreCase("desc")
+                ? Sort.by("id").descending()
+                : Sort.by("id").ascending();
+
+        // Ahora el service ya devuelve Page<OrderResponse>
+        return orderService.getOrdersByUser(
+                PageRequest.of(page, size, sortOrder),
+                requester.getId()
+        );
+    }
 }

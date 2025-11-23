@@ -15,6 +15,8 @@ import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.exceptions.AccessDeniedException;
 import com.uade.tpo.marketplace.repository.OrderRepository;
 
+import com.uade.tpo.marketplace.entity.dto.OrderResponse;
+
 import jakarta.transaction.Transactional;
 
 
@@ -25,7 +27,7 @@ public class OrderServiceImpl implements OrderService {
     private OrderRepository orderRepository;
 
     @Override
-    public Optional<Order> getOrderById(Long orderId) throws AccessDeniedException {
+    public Optional<OrderResponse> getOrderById(Long orderId) throws AccessDeniedException {
         Order order = orderRepository.findById(orderId)
             .orElseThrow(() -> new RuntimeException("Orden no encontrada con id: " + orderId));
 
@@ -35,16 +37,16 @@ public class OrderServiceImpl implements OrderService {
             throw new AccessDeniedException("No tienes permisos para realizar esta accion.");
         }
 
-        return Optional.of(order); // ya lo trae JpaRepository
+        return Optional.of(new OrderResponse(order)); // ya lo trae JpaRepository
     }
 
     @Override
-    public Page<Order> getOrders(Pageable pageable) {
-        return orderRepository.findAll(pageable);
+    public Page<OrderResponse> getOrders(Pageable pageable) {
+        return orderRepository.findAll(pageable).map(OrderResponse::from);
     }
 
     @Override
-    public Page<Order> getOrdersByUser(Pageable pageable, Long userId) throws AccessDeniedException {
+    public Page<OrderResponse> getOrdersByUser(Pageable pageable, Long userId) throws AccessDeniedException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) auth.getPrincipal(); 
 
@@ -54,7 +56,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // Retornar órdenes del usuario
-        return orderRepository.findByUserId(userId, pageable);
+        return orderRepository.findByUserId(userId, pageable).map(OrderResponse::from);
     }
 
     private User getCurrentUser() {
