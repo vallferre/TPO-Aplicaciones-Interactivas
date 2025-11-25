@@ -1,26 +1,22 @@
 package com.uade.tpo.marketplace.service;
 
 import com.uade.tpo.marketplace.entity.Category;
-import com.uade.tpo.marketplace.entity.CategoryImage;
+import com.uade.tpo.marketplace.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.Optional;
 
 public interface CategoryService {
-    public Page<Category> getCategories(PageRequest pageRequest);
+    Page<Category> getCategories(PageRequest pageRequest);
 
-    public Optional<Category> getCategoryById(Long categoryId);
+    Optional<Category> getCategoryById(Long categoryId);
 
-    public Optional<Category> getCategoryByDescription(String description);
+    Optional<Category> getCategoryByDescription(String description);
 
-    public Category createCategoryWithImage(String description, MultipartFile fileImage) throws IOException;
+    Category createCategory(String description, User currentUser);
 
-    public CategoryImage getCategoryImageById(Long imageId);
+    Category updateCategory(Long categoryId, String description, User currentUser);
 
-    public void deleteCategory(Long categoryId);
-
-    public Category updateCategory(Long categoryId, String description, MultipartFile fileImage) throws IOException;
+    void deleteCategory(Long categoryId, User currentUser);
 }

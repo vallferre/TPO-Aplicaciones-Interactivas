@@ -1,31 +1,27 @@
 package com.uade.tpo.marketplace.service;
 
 import com.uade.tpo.marketplace.entity.Category;
-import com.uade.tpo.marketplace.entity.CategoryImage;
-import com.uade.tpo.marketplace.exceptions.CategoryDuplicateException;
-import com.uade.tpo.marketplace.repository.CategoryImageRepository;
+import com.uade.tpo.marketplace.entity.User;
 import com.uade.tpo.marketplace.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.Optional;
 
 @Service
-public class CategoryServiceImpl implements CategoryService{
+public class CategoryServiceImpl implements CategoryService {
+    
     @Autowired
     private CategoryRepository categoryRepository;
 
-    @Autowired
-    private CategoryImageRepository imageRepository;
-
+    @Override
     public Page<Category> getCategories(PageRequest pageable) {
         return categoryRepository.findAll(pageable);
     }
 
+    @Override
     public Optional<Category> getCategoryById(Long categoryId) {
         return categoryRepository.findById(categoryId);
     }
@@ -39,74 +35,59 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
-    public Category createCategoryWithImage(String description, MultipartFile fileImage) throws IOException {
-        CategoryImage categoryImage = null;
-
-        if (fileImage != null && !fileImage.isEmpty()) {
-            categoryImage = new CategoryImage();
-            categoryImage.setContentType(fileImage.getContentType());
-            categoryImage.setFilename(fileImage.getOriginalFilename());
-            categoryImage.setData(fileImage.getBytes());
-            categoryImage.setSize(fileImage.getSize());
-            categoryImage = imageRepository.save(categoryImage); // guardo la imagen primero
+    public Category createCategory(String description, User currentUser) {
+        if (currentUser == null || !isAdmin(currentUser)) {
+            throw new SecurityException("Solo los administradores pueden realizar esta acción");
         }
-
-        Category category = new Category(description, categoryImage);
-        return categoryRepository.save(category); // guardo la categoría
-    }
-
-    @Override
-    public CategoryImage getCategoryImageById(Long imageId) {
-        return categoryRepository.findImageByFileImageId(imageId);
-    }
-
-    @Override
-    public void deleteCategory(Long categoryId) {
-        Optional<Category> categoryOpt = categoryRepository.findById(categoryId);
-        if (categoryOpt.isPresent()) {
-            Category category = categoryOpt.get();
-            // Primero borramos la imagen si existe
-            if (category.getFileImage() != null) {
-                imageRepository.delete(category.getFileImage());
-            }
-            // Luego borramos la categoría
-            categoryRepository.delete(category);
-        }
-    }
-
-    @Override
-    public Category updateCategory(Long categoryId, String description, MultipartFile fileImage) throws IOException {
-        Optional<Category> categoryOpt = categoryRepository.findById(categoryId);
-        if (categoryOpt.isEmpty()) {
-            throw new IllegalArgumentException("Category not found");
-        }
-
-        Category category = categoryOpt.get();
-
-        // Actualizamos la descripción
-        category.setDescription(description);
-
-        // Actualizamos la imagen si se envió un archivo
-        if (fileImage != null && !fileImage.isEmpty()) {
-            CategoryImage categoryImage = category.getFileImage();
-            if (categoryImage == null) {
-                categoryImage = new CategoryImage();
-            }
-
-            categoryImage.setContentType(fileImage.getContentType());
-            categoryImage.setFilename(fileImage.getOriginalFilename());
-            categoryImage.setData(fileImage.getBytes());
-            categoryImage.setSize(fileImage.getSize());
-
-            // Guardamos la imagen
-            categoryImage = imageRepository.save(categoryImage);
-
-            // Asignamos la imagen actualizada a la categoría
-            category.setFileImage(categoryImage);
-        }
-
-        // Guardamos la categoría actualizada
+        
+        // Formatear descripción: primera letra mayúscula
+        String formatted = description.substring(0, 1).toUpperCase() + 
+                          description.substring(1).toLowerCase();
+        
+        Category category = new Category();
+        category.setDescription(formatted);
+        
         return categoryRepository.save(category);
     }
 
+    @Override
+    public Category updateCategory(Long categoryId, String description, User currentUser) {
+        if (currentUser == null || !isAdmin(currentUser)) {
+            throw new SecurityException("Solo los administradores pueden realizar esta acción");
+        }
+        
+        Optional<Category> categoryOpt = categoryRepository.findById(categoryId);
+        if (categoryOpt.isEmpty()) {
+            throw new IllegalArgumentException("Category not found with id: " + categoryId);
+        }
+
+        Category category = categoryOpt.get();
+        
+        // Formatear descripción: primera letra mayúscula
+        String formatted = description.substring(0, 1).toUpperCase() + 
+                          description.substring(1).toLowerCase();
+        
+        category.setDescription(formatted);
+        
+        return categoryRepository.save(category);
+    }
+
+    @Override
+    public void deleteCategory(Long categoryId, User currentUser) {
+        if (currentUser == null || !isAdmin(currentUser)) {
+            throw new SecurityException("Solo los administradores pueden realizar esta acción");
+        }
+        
+        Optional<Category> categoryOpt = categoryRepository.findById(categoryId);
+        if (categoryOpt.isPresent()) {
+            categoryRepository.delete(categoryOpt.get());
+        } else {
+            throw new IllegalArgumentException("Category not found with id: " + categoryId);
+        }
+    }
+
+    private boolean isAdmin(User user) {
+        return user.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+    }
 }

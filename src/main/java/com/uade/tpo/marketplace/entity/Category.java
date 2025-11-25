@@ -14,29 +14,29 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import lombok.Data;
 
-
-@Data //tiene todos los datos necesarios, los getters y setters
-//@AllArgsConstructor
+@Data
 @Entity
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
     @Column
     private String description;
 
-    @ManyToMany(mappedBy = "categories") //para que se pueda filtrar por categoría y conseguir todos los productos de esa categoría
+    @ManyToMany(mappedBy = "categories")
     @JsonIgnore
     private List<Product> products = new ArrayList<>();
 
-    public Category(){}
+    // Relación OneToOne con CategoryImage
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private CategoryImage fileImage;
 
-    public Category(String description, CategoryImage fileImage) {
-        this.description = description.substring(0, 1).toUpperCase() + description.substring(1).toLowerCase();
-        this.fileImage = fileImage;
+    public Category() {
     }
 
-    // NUEVO: relación a imágenes por categoria
-    @OneToOne(cascade = CascadeType.ALL)
-    private CategoryImage fileImage;
+    public Category(String description) {
+        this.description = description;
+    }
 }

@@ -7,22 +7,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.marketplace.entity.Category;
-import com.uade.tpo.marketplace.entity.CategoryImage;
+import com.uade.tpo.marketplace.entity.User;
+import com.uade.tpo.marketplace.entity.dto.CategoryRequest;
 import com.uade.tpo.marketplace.entity.dto.CategoryResponse;
-import com.uade.tpo.marketplace.service.CategoryImageService;
 import com.uade.tpo.marketplace.service.CategoryService;
 
 @RestController
@@ -30,14 +21,7 @@ import com.uade.tpo.marketplace.service.CategoryService;
 public class CategoriesController {
 
     @Autowired
-    /*is an annotation used for automatic dependency injection. 
-    It allows Spring to automatically resolve and inject the required dependencies (other beans) into a class at runtime, 
-    eliminating the need for manual configuration of these dependencies.
-    */
     private CategoryService categoryService;
-
-    @Autowired
-    private CategoryImageService imageService;
 
     @GetMapping
     public ResponseEntity<Page<CategoryResponse>> getCategories(
@@ -64,21 +48,7 @@ public class CategoriesController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping(consumes = {"multipart/form-data"})
-    public ResponseEntity<CategoryResponse> createCategory(
-            @RequestParam String description,
-            @RequestParam("file") MultipartFile fileImage
-    ) {
-        try {
-            Category category = categoryService.createCategoryWithImage(description, fileImage);
-            return ResponseEntity.ok(CategoryResponse.from(category));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(null);
-        }
-    }
-
-    @GetMapping({"/by-description/{description}"})
+    @GetMapping("/by-description/{description}")
     public ResponseEntity<CategoryResponse> getCategoryByDescription(@PathVariable String description) {
         Optional<Category> result = categoryService.getCategoryByDescription(description);
         if (result.isPresent())
@@ -87,46 +57,64 @@ public class CategoriesController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{categoryId}/image")
-    public ResponseEntity<byte[]> getCategoryImage(@PathVariable Long categoryId) {
-        CategoryImage img = imageService.getByCategory(categoryId);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" +
-                        (img.getFilename() == null ? ("category-" + img.getId()) : img.getFilename()) + "\"")
-                .contentType(img.getContentType() == null
-                        ? MediaType.APPLICATION_OCTET_STREAM
-                        : MediaType.parseMediaType(img.getContentType()))
-                .contentLength(img.getSize())
-                .body(img.getData());
-    }
-
-    @DeleteMapping("/{categoryId}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long categoryId) {
-        Optional<Category> categoryOpt = categoryService.getCategoryById(categoryId);
-        if (categoryOpt.isPresent()) {
-            categoryService.deleteCategory(categoryId);
-            return ResponseEntity.noContent().build();
+    // POST - Crear categoría (SOLO DESCRIPCIÓN, JSON)
+    @PostMapping
+    public ResponseEntity<?> createCategory(
+            @RequestBody CategoryRequest request,
+            @AuthenticationPrincipal User currentUser) {
+        
+        try {
+            Category category = categoryService.createCategory(request.getDescription(), currentUser);
+            return ResponseEntity.status(HttpStatus.CREATED).body(CategoryResponse.from(category));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al crear la categoría: " + e.getMessage());
         }
-        return ResponseEntity.notFound().build();
     }
 
-    @PutMapping(value = "/{categoryId}", consumes = {"multipart/form-data"})
-    public ResponseEntity<CategoryResponse> editCategory(
+    // PUT - Actualizar categoría (SOLO DESCRIPCIÓN, JSON)
+    @PutMapping("/{categoryId}")
+    public ResponseEntity<?> editCategory(
             @PathVariable Long categoryId,
-            @RequestParam String description,
-            @RequestParam(value = "file", required = false) MultipartFile fileImage
-    ) {
+            @RequestBody CategoryRequest request,
+            @AuthenticationPrincipal User currentUser) {
+        
         Optional<Category> categoryOpt = categoryService.getCategoryById(categoryId);
         if (categoryOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
         try {
-            Category updatedCategory = categoryService.updateCategory(categoryId, description, fileImage);
+            Category updatedCategory = categoryService.updateCategory(categoryId, request.getDescription(), currentUser);
             return ResponseEntity.ok(CategoryResponse.from(updatedCategory));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al actualizar la categoría: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{categoryId}")
+    public ResponseEntity<?> deleteCategory(
+            @PathVariable Long categoryId,
+            @AuthenticationPrincipal User currentUser) {
+        
+        Optional<Category> categoryOpt = categoryService.getCategoryById(categoryId);
+        if (categoryOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            categoryService.deleteCategory(categoryId, currentUser);
+            return ResponseEntity.noContent().build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al eliminar la categoría: " + e.getMessage());
         }
     }
 }
